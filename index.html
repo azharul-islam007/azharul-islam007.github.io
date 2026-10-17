@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Dr. Azharul Islam, postdoctoral researcher in AI-native wireless systems for 6G at Hanyang University: semantic communication, integrated sensing and communication, and O-RAN resource orchestration.">
+<meta name="author" content="Azharul Islam">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Azharul Islam">
+<meta property="og:description" content="Postdoctoral researcher in AI-native wireless systems for 6G at Hanyang University.">
+<meta property="og:image" content="img/gpu-cluster-walkthrough.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305101C'/%3E%3Cg fill='%23F6A93B'%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Ccircle cx='23' cy='9' r='2'/%3E%3Ccircle cx='9' cy='23' r='2'/%3E%3Ccircle cx='23' cy='23' r='2'/%3E%3C/g%3E%3Cg fill='%2345D0C0'%3E%3Ccircle cx='16' cy='16' r='2'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  /* baseline reset (the artifact host normally supplies this) */
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); color-scheme: dark; }
+  html { -webkit-text-size-adjust: 100%; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Azharul Islam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ground: #05101C;
+    --panel: #0A1A2B;
+    --panel-2: #0D2235;
+    --line: #16314A;
+    --line-soft: #102537;
+    --ink: #E2EDF6;
+    --ink-dim: #9DB2C6;
+    --ink-faint: #627B91;
+    --signal: #F6A93B;
+    --lock: #45D0C0;
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --col: 1120px;
+    --gutter: 24px;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wrap { max-width: var(--col); margin: 0 auto; padding-inline: var(--gutter); }
+  a { color: var(--ink); }
+
+  :is(a, button, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .skip {
+    position: absolute; left: -9999px; top: 0;
+    background: var(--signal); color: #06121F;
+    padding: 10px 16px; font-weight: 600; z-index: 80;
+  }
+  .skip:focus { left: 8px; top: 8px; }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 40;
+    background: color-mix(in srgb, var(--ground) 80%, transparent);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .masthead-in {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; padding-block: 13px; flex-wrap: wrap;
+  }
+  .mark { font-weight: 600; letter-spacing: -0.01em; text-decoration: none; font-size: 15px; }
+  .mark span { color: var(--ink-faint); font-weight: 400; }
+  .navlinks { display: flex; gap: 22px; font-size: 14px; flex-wrap: wrap; }
+  .navlinks a {
+    color: var(--ink-dim); text-decoration: none; padding-block: 2px;
+    border-bottom: 1px solid transparent;
+    transition: color .22s var(--ease), border-color .22s var(--ease);
+  }
+  .navlinks a:hover { color: var(--ink); border-bottom-color: var(--signal); }
+  .navlinks a.current { color: var(--ink); border-bottom-color: var(--lock); }
+
+  #progress {
+    position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%;
+    background: linear-gradient(90deg, var(--signal), var(--lock));
+    transform: scaleX(0); transform-origin: 0 50%;
+  }
+
+  /* ================= full-bleed hero ================= */
+  .hero {
+    position: relative;
+    min-height: 92svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    isolation: isolate;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .bg { position: absolute; inset: 0; z-index: 0; background: #03090F; }
+  .bgslide {
+    position: absolute; inset: 0;
+    opacity: 0; visibility: hidden;
+    transition: opacity 1.15s var(--ease), visibility 1.15s;
+  }
+  .bgslide.on { opacity: 1; visibility: visible; }
+  .bgslide img {
+    width: 100%; height: 100%;
+    object-fit: cover;                 /* fills the page; crop focus set per photo */
+    object-position: var(--pos, center 45%);
+    transform: scale(1.02);
+    transition: transform 9s linear;
+    will-change: transform;
+  }
+  .bgslide.on img.kb { transform: scale(1.1); }
+
+  /* legibility veil: strong at the left where the type sits */
+  .veil {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      linear-gradient(103deg, rgba(5,16,28,.96) 0%, rgba(5,16,28,.88) 36%, rgba(5,16,28,.58) 68%, rgba(5,16,28,.42) 100%),
+      linear-gradient(to top, rgba(3,9,15,.96) 0%, rgba(3,9,15,.35) 34%, transparent 62%);
+  }
+  .grain {
+    position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: .5;
+    background-image: repeating-linear-gradient(0deg, rgba(69,208,192,.05) 0 1px, transparent 1px 3px);
+    mix-blend-mode: screen;
+  }
+
+  .hero-inner {
+    position: relative; z-index: 3;
+    width: 100%;
+    padding-block: clamp(90px, 13vh, 150px) clamp(26px, 4vh, 44px);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 30px clamp(24px, 4vw, 48px);
+    align-items: end;
+  }
+
+  h1 {
+    font-size: clamp(2.7rem, 8vw, 5.1rem);
+    line-height: 0.95; letter-spacing: -0.04em; font-weight: 700;
+    margin: 0 0 16px; text-wrap: balance;
+    text-shadow: 0 2px 26px rgba(3,9,15,.75);
+  }
+  .role { font-size: clamp(1rem, 2.1vw, 1.2rem); margin: 0 0 5px; font-weight: 500; }
+  .affil { color: var(--ink-dim); margin: 0 0 20px; font-size: 15px; max-width: 48ch; }
+  .lede { color: var(--ink-dim); max-width: 56ch; margin: 0 0 26px; font-size: 16.5px; }
+  .lede strong { color: var(--ink); font-weight: 500; }
+
+  .contacts { display: flex; flex-wrap: wrap; gap: 10px; }
+  .contacts a {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; font-size: 14px; padding: 10px 16px;
+    border: 1px solid var(--line); background: rgba(10,26,43,.78);
+    backdrop-filter: blur(6px); color: var(--ink-dim);
+    transition: border-color .22s var(--ease), color .22s var(--ease),
+                background .22s var(--ease), transform .22s var(--ease);
+  }
+  .contacts a:hover {
+    border-color: var(--signal); color: var(--ink);
+    background: rgba(13,34,53,.92); transform: translateY(-2px);
+  }
+  .contacts a.primary { border-color: color-mix(in srgb, var(--signal) 55%, var(--line)); color: var(--ink); }
+  .dot { width: 6px; height: 6px; background: var(--signal); flex: none; }
+  .contacts a:nth-child(2) .dot { background: var(--lock); }
+  .contacts a:nth-child(3) .dot { background: var(--ink-faint); }
+
+  /* hero slider controls */
+  .shotinfo {
+    display: grid; gap: 10px; justify-items: end; text-align: right;
+    max-width: 330px;
+  }
+  .shotinfo .seq { font-family: var(--mono); font-size: 11px; color: var(--lock); }
+  .shotinfo .cap { margin: 0; font-size: 13.5px; color: var(--ink-dim); line-height: 1.45; }
+  .shotctl { display: flex; align-items: center; gap: 8px; }
+  .arrow {
+    width: 36px; height: 34px; display: grid; place-items: center;
+    background: rgba(5,16,28,.7); border: 1px solid var(--line);
+    color: var(--ink); cursor: pointer;
+    transition: background .22s var(--ease), border-color .22s var(--ease);
+  }
+  .arrow:hover { background: rgba(13,34,53,.95); border-color: var(--signal); }
+  .arrow svg { width: 14px; height: 14px; }
+  .zoom {
+    font: inherit; font-size: 12px; font-family: var(--mono);
+    background: rgba(5,16,28,.7); border: 1px solid var(--line);
+    color: var(--ink-dim); padding: 8px 12px; cursor: pointer;
+    transition: all .22s var(--ease);
+  }
+  .zoom:hover { border-color: var(--signal); color: var(--ink); }
+
+  .rail { display: flex; gap: 6px; }
+  .pip {
+    width: 30px; height: 3px; background: var(--line);
+    border: 0; padding: 0; cursor: pointer; position: relative; overflow: hidden;
+  }
+  .pip span { position: absolute; inset: 0; background: var(--signal); transform: scaleX(0); transform-origin: 0 50%; }
+  .pip[aria-current="true"] span { transform: scaleX(1); transition: transform .4s var(--ease); }
+  .pip.timing span { animation: fill var(--dwell, 6000ms) linear forwards; }
+  @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .cue {
+    position: absolute; left: 50%; bottom: 14px; z-index: 3;
+    transform: translateX(-50%);
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint);
+    display: grid; justify-items: center; gap: 5px; pointer-events: none;
+  }
+  .cue i { display: block; width: 1px; height: 22px; background: linear-gradient(var(--ink-faint), transparent); animation: drop 2.1s ease-in-out infinite; }
+  @keyframes drop { 0%,100% { transform: scaleY(.45); opacity: .4; } 50% { transform: scaleY(1); opacity: 1; } }
+
+  /* ---------- figures ---------- */
+  .figures {
+    border-bottom: 1px solid var(--line-soft); padding-block: 28px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 24px 20px;
+  }
+  .fig dt {
+    font-family: var(--mono); font-size: clamp(1.45rem, 3vw, 1.85rem);
+    color: var(--signal); font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 7px;
+  }
+  .fig dd { margin: 0; font-size: 13px; color: var(--ink-dim); line-height: 1.45; }
+
+  /* ---------- sections ---------- */
+  section { padding-block: clamp(44px, 6vw, 72px); }
+  section + section { border-top: 1px solid var(--line-soft); }
+  h2 { font-size: clamp(1.35rem, 2.6vw, 1.6rem); letter-spacing: -0.02em; font-weight: 600; margin: 0 0 8px; }
+  .sec-note { color: var(--ink-faint); font-size: 14.5px; margin: 0 0 30px; max-width: 62ch; }
+
+  /* ---------- research + scope ---------- */
+  .research-top {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+    gap: clamp(26px, 4vw, 48px); align-items: start; margin-bottom: 34px;
+  }
+  .scope { border: 1px solid var(--line); background: radial-gradient(ellipse at 50% 42%, rgba(69,208,192,.07), transparent 62%), var(--panel); padding: 14px; margin: 0; }
+  .scope-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+    margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .scope-head b { color: var(--ink-dim); font-weight: 500; }
+  #evm { color: var(--signal); font-variant-numeric: tabular-nums; transition: color .5s linear; }
+  #evm.locked { color: var(--lock); }
+  canvas { display: block; width: 100%; height: auto; max-width: 100%; aspect-ratio: 1 / 1; }
+  .scope-foot { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-top: 10px; line-height: 1.5; }
+
+  .themes { display: grid; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+  .theme {
+    background: var(--ground); padding: 24px clamp(18px, 3vw, 28px);
+    display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px 32px;
+    align-items: start; transition: background .25s var(--ease);
+  }
+  .theme:hover { background: var(--panel); }
+  .theme h3 { margin: 0; font-size: 16px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; }
+  .theme p { margin: 0; color: var(--ink-dim); font-size: 15px; max-width: 64ch; }
+  .theme .tag { font-family: var(--mono); font-size: 11px; color: var(--lock); display: block; margin-top: 7px; }
+
+  /* ---------- lightbox ---------- */
+  #lightbox {
+    position: fixed; inset: 0; z-index: 90;
+    background: rgba(2, 7, 12, .96);
+    display: grid; place-items: center; padding: 20px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s var(--ease);
+  }
+  #lightbox.open { opacity: 1; pointer-events: auto; }
+  #lightbox img {
+    max-width: 100%; max-height: 84vh;
+    width: auto; height: auto;          /* native ratio, uncropped, full quality */
+    transform: scale(.97);
+    transition: transform .3s var(--ease);
+  }
+  #lightbox.open img { transform: scale(1); }
+  #lightbox .close {
+    position: absolute; top: 18px; right: 18px;
+    background: transparent; border: 1px solid var(--line);
+    color: var(--ink); font: inherit; font-size: 13px; padding: 8px 14px; cursor: pointer;
+  }
+  #lightbox .close:hover { border-color: var(--signal); }
+  #lbcap { position: absolute; left: 20px; right: 20px; bottom: 18px; text-align: center; color: var(--ink-dim); font-size: 13.5px; margin: 0; }
+
+  /* ---------- publications ---------- */
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+  .filters button {
+    font: inherit; font-size: 13.5px; padding: 7px 14px;
+    background: transparent; border: 1px solid var(--line); color: var(--ink-dim);
+    cursor: pointer; transition: all .22s var(--ease);
+  }
+  .filters button:hover { border-color: var(--ink-faint); color: var(--ink); }
+  .filters button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal); color: #06121F; font-weight: 600; }
+
+  ol.biblio { list-style: none; margin: 0; padding: 0; counter-reset: ref; }
+  ol.biblio li {
+    counter-increment: ref;
+    display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 18px;
+    padding-block: 17px; border-top: 1px solid var(--line-soft);
+    transition: background .2s var(--ease);
+    margin-inline: -10px; padding-inline: 10px;
+  }
+  ol.biblio li:hover { background: var(--panel); }
+  ol.biblio li::before {
+    content: counter(ref); font-family: var(--mono); font-size: 12px;
+    color: var(--ink-faint); padding-top: 4px; font-variant-numeric: tabular-nums;
+  }
+  ol.biblio li[hidden] { display: none; }
+  .pub-title { margin: 0 0 5px; font-size: 15.5px; font-weight: 500; line-height: 1.45; }
+  .pub-meta { margin: 0; font-size: 13.5px; color: var(--ink-dim); }
+  .pub-meta em { font-style: italic; color: var(--ink); }
+  .pub-meta .num { font-family: var(--mono); font-size: 12.5px; color: var(--ink-faint); }
+  .state { display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 2px 7px; border: 1px solid; margin-left: 2px; vertical-align: 1px; }
+  .state.review { color: var(--signal); border-color: color-mix(in srgb, var(--signal) 40%, transparent); }
+  .state.accepted { color: var(--lock); border-color: color-mix(in srgb, var(--lock) 40%, transparent); }
+
+  /* ---------- patents ---------- */
+  .ip { list-style: none; margin: 0; padding: 0; }
+  .ip li { padding-block: 15px; border-top: 1px solid var(--line-soft); display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 6px 20px; }
+  .ip .status { font-family: var(--mono); font-size: 11.5px; color: var(--lock); padding-top: 3px; }
+  .ip .status.filed { color: var(--ink-faint); }
+  .ip p { margin: 0; font-size: 15px; line-height: 1.45; }
+  .ip .no { font-family: var(--mono); font-size: 12.5px; color: var(--ink-faint); display: block; margin-top: 4px; }
+
+  /* ---------- projects ---------- */
+  .projects { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); }
+  .projects li { background: var(--ground); padding: 20px clamp(18px, 2.5vw, 24px); transition: background .25s var(--ease); }
+  .projects li:hover { background: var(--panel); }
+  .projects h3 { margin: 0 0 5px; font-size: 15.5px; font-weight: 600; line-height: 1.4; }
+  .projects p { margin: 0; color: var(--ink-dim); font-size: 14.5px; max-width: 70ch; }
+  .projects .lead { font-family: var(--mono); font-size: 11.5px; color: var(--lock); display: block; margin-bottom: 8px; }
+
+  /* ---------- timeline ---------- */
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px 24px; padding-block: 19px; border-top: 1px solid var(--line-soft); }
+  .timeline .when { font-family: var(--mono); font-size: 12.5px; color: var(--signal); padding-top: 3px; font-variant-numeric: tabular-nums; }
+  .timeline h3 { margin: 0 0 3px; font-size: 15.5px; font-weight: 600; }
+  .timeline .where { margin: 0 0 6px; color: var(--ink-dim); font-size: 14px; }
+  .timeline p.detail { margin: 0; color: var(--ink-faint); font-size: 14px; max-width: 66ch; }
+
+  /* ---------- recognition ---------- */
+  .awards { list-style: none; margin: 0; padding: 0; }
+  .awards li { padding-block: 15px; border-top: 1px solid var(--line-soft); }
+  .awards h3 { margin: 0 0 3px; font-size: 15.5px; font-weight: 600; }
+  .awards p { margin: 0; color: var(--ink-dim); font-size: 14.5px; max-width: 70ch; }
+  .awards .yr { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+
+  .grant {
+    border: 1px solid color-mix(in srgb, var(--signal) 32%, var(--line));
+    background: linear-gradient(180deg, rgba(246,169,59,.06), transparent);
+    padding: clamp(20px, 3vw, 26px); margin-bottom: 26px;
+  }
+  .grant h3 { margin: 0 0 8px; font-size: 17px; font-weight: 600; }
+  .grant p { margin: 0 0 12px; color: var(--ink-dim); font-size: 15px; max-width: 68ch; }
+  .grant p:last-child { margin-bottom: 0; }
+  .grant .alloc { font-family: var(--mono); font-size: 13px; color: var(--signal); }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding-block: 40px 52px; color: var(--ink-faint); font-size: 14px; }
+  .foot-grid { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+  footer a { color: var(--ink-dim); }
+  footer .lines { display: grid; gap: 5px; }
+
+  @media (max-width: 900px) {
+    .research-top { grid-template-columns: 1fr; }
+    .hero-grid { grid-template-columns: 1fr; align-items: start; }
+    .shotinfo { justify-items: start; text-align: left; max-width: none; }
+    .veil {
+      background:
+        linear-gradient(to top, rgba(3,9,15,.97) 0%, rgba(3,9,15,.86) 46%, rgba(5,16,28,.6) 100%),
+        linear-gradient(rgba(5,16,28,.45), rgba(5,16,28,.45));
+    }
+  }
+  @media (max-width: 860px) {
+    .theme { grid-template-columns: 1fr; gap: 8px; }
+    .timeline li, .ip li { grid-template-columns: 1fr; gap: 4px; }
+    .timeline .when, .ip .status { padding-top: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+    }
+  }
+
+  /* ---------- project demos ---------- */
+  .demos { display: grid; gap: clamp(26px, 4vw, 40px); }
+  .demo {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: clamp(18px, 3vw, 32px);
+    align-items: start;
+  }
+  .demo video {
+    width: 100%; height: auto; display: block;
+    aspect-ratio: 16 / 9; background: #03090F;
+    border: 1px solid var(--line);
+  }
+  .demo-meta h3 { margin: 0 0 8px; font-size: 16.5px; font-weight: 600; line-height: 1.35; letter-spacing: -0.01em; }
+  .demo-meta p { margin: 0 0 14px; color: var(--ink-dim); font-size: 14.5px; max-width: 52ch; }
+  .demo-facts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .demo-facts span {
+    font-family: var(--mono); font-size: 11px; padding: 4px 9px;
+    border: 1px solid var(--line-soft); color: var(--ink-faint);
+  }
+  .demo-facts .venue { color: var(--lock); border-color: color-mix(in srgb, var(--lock) 32%, transparent); }
+  @media (max-width: 860px) { .demo { grid-template-columns: 1fr; } }
+</style>
+
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <a class="mark" href="#top">Azharul Islam<span>, PhD</span></a>
+    <nav class="navlinks" aria-label="Sections">
+      <a href="#research">Research</a>
+      <a href="#demos">Demos</a>
+      <a href="#publications">Publications</a>
+      <a href="#patents">Patents</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+  <div id="progress"></div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" tabindex="-1" aria-roledescription="carousel" aria-label="Portrait background from teaching and conference work">
+    <div class="bg" id="bg">
+      <div class="bgslide on" style="--pos:center 44%"
+           data-cap="Walking a visiting group through the GPU cluster that powers our 6G research."
+           data-seq="Beyond-G AI Computation Center">
+        <img class="kb" src="img/gpu-cluster-walkthrough.jpg" width="1900" height="1425"
+             alt="Azharul Islam beside a server rack, addressing a group of visiting students in a machine room.">
+      </div>
+      <div class="bgslide" style="--pos:center 36%"
+           data-cap="Hands-on session around newly delivered compute hardware."
+           data-seq="Lab session">
+        <img class="kb" src="img/hands-on-hardware.jpg" width="1425" height="1900"
+             alt="Azharul Islam leaning over a laptop on a stack of equipment cartons, explaining something to students crowded around.">
+      </div>
+      <div class="bgslide" style="--pos:center 46%"
+           data-cap="Closing a workshop session, taking the group from O-RAN fundamentals to closed-loop control."
+           data-seq="Workshop">
+        <img class="kb" src="img/workshop-session.jpg" width="1900" height="1341"
+             alt="A lecture room with participants at laptops applauding, slides projected on the screen behind two presenters.">
+      </div>
+      <div class="bgslide" style="--pos:center 42%"
+           data-cap="Teaching a seminar session on wireless network design."
+           data-seq="Seminar">
+        <img class="kb" src="img/lecture-delivery.jpg" width="1900" height="1425"
+             alt="Azharul Islam presenting at the front of a seminar room, a slide displayed on the wall screen beside him.">
+      </div>
+      <div class="bgslide" style="--pos:center 46%"
+           data-cap="Presenting Big Data Preprocessing for Real-Time Disaster Situational Awareness by Text Classification."
+           data-seq="KICS conference">
+        <img class="kb" src="img/kics-presentation.jpg" width="960" height="720"
+             alt="Azharul Islam delivering a conference talk in front of a projected slide titled Big Data Preprocessing for Real Time Disaster Situational Awareness by Text Classification.">
+      </div>
+    </div>
+    <div class="veil"></div>
+    <div class="grain"></div>
+
+    <div class="hero-inner">
+      <div class="wrap hero-grid">
+        <div>
+          <h1>Azharul Islam</h1>
+          <p class="role">Postdoctoral Researcher, Beyond-G Global Innovation Center</p>
+          <p class="affil">Head of the Beyond-G AI Computation Center, Hanyang University, Seoul, South Korea</p>
+          <p class="lede">I work on <strong>AI-native wireless systems for 6G</strong> — semantic communication beyond bit fidelity, integrated sensing and communication, and reinforcement learning for O-RAN resource orchestration. I run a DGX H200 cluster and an ARC-OTA testbed, so the work goes from theory to a radio that actually transmits.</p>
+          <div class="contacts">
+            <a class="primary" href="mailto:azharul.dream007@gmail.com"><span class="dot"></span>azharul.dream007@gmail.com</a>
+            <a href="https://scholar.google.co.kr/citations?hl=en&amp;user=qWDmk-wAAAAJ" target="_blank" rel="noopener"><span class="dot"></span>Google Scholar</a>
+            <a href="https://linkedin.com/in/dr-azharul-islam" target="_blank" rel="noopener"><span class="dot"></span>LinkedIn</a>
+          </div>
+        </div>
+
+        <div class="shotinfo">
+          <span class="seq" id="slideSeq">Beyond-G AI Computation Center</span>
+          <p class="cap" id="slideCap">Walking a visiting group through the GPU cluster that powers our 6G research.</p>
+          <div class="shotctl">
+            <button class="arrow prev" type="button" aria-label="Previous photograph">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+            </button>
+            <button class="arrow next" type="button" aria-label="Next photograph">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+            </button>
+            <button class="zoom" type="button" id="zoomBtn">View full size</button>
+          </div>
+          <div class="rail" id="rail" role="tablist" aria-label="Choose photograph"></div>
+        </div>
+      </div>
+    </div>
+    <span class="cue" aria-hidden="true"><i></i>scroll</span>
+  </section>
+
+  <div class="wrap">
+    <dl class="figures">
+      <div class="fig"><dt data-count="7">7</dt><dd>Peer-reviewed journal articles</dd></div>
+      <div class="fig"><dt data-count="7">7</dt><dd>Conference papers</dd></div>
+      <div class="fig"><dt data-count="4">4</dt><dd>Journal manuscripts under review</dd></div>
+      <div class="fig"><dt data-count="5">5</dt><dd>Korean patents, one registered</dd></div>
+      <div class="fig"><dt data-count="5">5</dt><dd>National R&amp;D projects coordinated</dd></div>
+      <div class="fig"><dt data-count="35000">35,000</dt><dd>NVIDIA H100 GPU-hours awarded</dd></div>
+    </dl>
+  </div>
+
+  <div class="wrap">
+    <section id="research">
+      <div class="research-top">
+        <div>
+          <h2>Research</h2>
+          <p class="sec-note">Four lines of work, each one moving from a theoretical result to something that runs on real infrastructure. The constellation alongside is the problem in one picture: sixteen symbols scattered by channel noise, resolving onto the decision lattice as the receiver acquires lock.</p>
+        </div>
+        <figure class="scope">
+          <div class="scope-head">
+            <b>16-QAM constellation</b>
+            <span>EVM <span id="evm">45.0</span>%</span>
+          </div>
+          <canvas id="qam" width="560" height="560" role="img"
+            aria-label="A 16-QAM signal constellation diagram in which scattered noisy samples converge into a clean four-by-four lattice as the receiver acquires lock."></canvas>
+          <figcaption class="scope-foot">My doctoral work reframes this recovery problem as restoring <em>meaning</em> rather than bits.</figcaption>
+        </figure>
+      </div>
+
+      <div class="themes">
+        <article class="theme">
+          <h3>Semantic communication beyond bit fidelity</h3>
+          <div>
+            <p>A domain-aware, knowledge-enhanced framework that transmits what a message <em>means</em> rather than reproducing every bit, with physical-layer channel adaptation and data-preserving reconstruction. This was my doctoral thesis and remains the spine of the work.</p>
+            <span class="tag">IEEE TNSE 2026, IEEE OJCOMS 2025, ICT Express 2024</span>
+          </div>
+        </article>
+        <article class="theme">
+          <h3>O-RAN and closed-loop AI-RAN</h3>
+          <div>
+            <p>Coverage and capacity optimisation inside an O-RAN digital twin, testing static tuning against learned control, and taken through the full safe-automation path: shadow mode, promotion gates and automatic rollback before anything touches a live cell. Built and taught on NVIDIA AODT and VIAVI AIRSG.</p>
+            <span class="tag">IEEE TNSM, submitted</span>
+          </div>
+        </article>
+        <article class="theme">
+          <h3>Integrated sensing and communication</h3>
+          <div>
+            <p>A provable Doppler-induced orthogonality-loss gap in semantic-ISAC, validated inside a network digital twin, together with the O-RAN observable the standard currently lacks to detect it. Current work extends this to intent-driven agentic decisions on a UAV-ISAC twin built over ray-traced cities, on a verify-rehearse-commit loop.</p>
+            <span class="tag">IEEE APWCS 2026, Seoul. IEEE TNSE, submitted</span>
+          </div>
+        </article>
+        <article class="theme">
+          <h3>Learned resource orchestration</h3>
+          <div>
+            <p>Hierarchical multi-resolution deep Q-networks for physical resource block allocation across B5G heterogeneous networks, combining traffic prediction with interference management. Five patent filings came out of this line.</p>
+            <span class="tag">IEEE TCCN, under review</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+
+    <section id="demos">
+      <h2>Project demonstrations</h2>
+      <p class="sec-note">Recorded walkthroughs of three systems. Each one is the demo that accompanies the paper named beside it. Nothing downloads until you press play.</p>
+      <div class="demos">
+
+        <article class="demo">
+          <video controls preload="none" poster="img/demo-cco.jpg" playsinline
+                 aria-label="Demonstration of coverage and capacity optimization in an O-RAN digital twin">
+            <source src="videos/cco-oran-digital-twin.mp4" type="video/mp4">
+            <p>Your browser cannot play this video. <a href="videos/cco-oran-digital-twin.mp4">Download the file</a> instead.</p>
+          </video>
+          <div class="demo-meta">
+            <h3>Coverage and Capacity Optimization in an O-RAN Digital Twin</h3>
+            <p>Static tuning measured against learned control inside the twin, with the full safe-automation path: shadow mode, promotion gate, automatic rollback.</p>
+            <div class="demo-facts">
+              <span class="venue">IEEE TNSM, submitted</span>
+              <span>5 min 46 s</span>
+              <span>1080p</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="demo">
+          <video controls preload="none" poster="img/demo-uav.jpg" playsinline
+                 aria-label="Demonstration of intent-driven agentic decisions on a UAV-ISAC digital twin">
+            <source src="videos/uav-isac-agentic-twin.mp4" type="video/mp4">
+            <p>Your browser cannot play this video. <a href="videos/uav-isac-agentic-twin.mp4">Download the file</a> instead.</p>
+          </video>
+          <div class="demo-meta">
+            <h3>Intent-Driven Agentic Decisions on a UAV-ISAC Digital Twin</h3>
+            <p>An operator states an intent in natural language; the system verifies it against the mission contract, rehearses it in a forked twin, and only then commits under a lock. Built over ray-traced cities in Sionna RT.</p>
+            <div class="demo-facts">
+              <span class="venue">IEEE TNSE, submitted</span>
+              <span>4 min 59 s</span>
+              <span>1080p</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="demo">
+          <video controls preload="none" poster="img/demo-v2x.jpg" playsinline
+                 aria-label="Demonstration of communication impairment thresholds for safe cooperative lane changing">
+            <source src="videos/v2x-lane-changing.mp4" type="video/mp4">
+            <p>Your browser cannot play this video. <a href="videos/v2x-lane-changing.mp4">Download the file</a> instead.</p>
+          </video>
+          <div class="demo-meta">
+            <h3>How Reliable Must V2X Be for Safe Cooperative Lane Changing?</h3>
+            <p>Empirical impairment thresholds for cooperative lane changes, mapping where latency, loss and range stop being survivable for the manoeuvre.</p>
+            <div class="demo-facts">
+              <span class="venue">IEEE VTC2026-Fall, accepted</span>
+              <span>1 min 54 s</span>
+              <span>1080p</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <section id="publications">
+      <h2>Publications</h2>
+      <p class="sec-note">Peer-reviewed journal and conference work, with three journal manuscripts currently under review.</p>
+      <div class="filters" role="group" aria-label="Filter publications by type">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="journal" aria-pressed="false">Journal</button>
+        <button type="button" data-filter="conference" aria-pressed="false">Conference</button>
+        <button type="button" data-filter="review" aria-pressed="false">Under review</button>
+      </div>
+      <ol class="biblio" id="biblio">
+        <li data-type="journal"><div>
+          <p class="pub-title">Beyond Bit Fidelity: Dual-Mode Domain-Aware Knowledge-Enhanced Semantic Text Communication Framework</p>
+          <p class="pub-meta">A. Islam and K. Chang. <em>IEEE Transactions on Network Science and Engineering</em>, <span class="num">vol. 13, pp. 7964–7986, 2026</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">Pushing the Boundaries of Urban Wireless Networks: A Semantic-Aware Intelligent Network System for Data-Centric Adaptive Spectrum Management</p>
+          <p class="pub-meta">A. Islam and K. Chang. <em>IEEE Open Journal of the Communications Society</em>, <span class="num">vol. 6, pp. 1446–1469, 2025</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">Navigating the Future of Wireless Networks: A Multidimensional Survey on Semantic Communications</p>
+          <p class="pub-meta">A. Islam and K. H. Chang. <em>ICT Express</em>, Elsevier, <span class="num">2024</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">Real-Time AI-Based Informational Decision-Making Support System Utilizing Dynamic Text Sources</p>
+          <p class="pub-meta">A. Islam and K. H. Chang. <em>Applied Sciences</em>, <span class="num">vol. 11, no. 13, p. 6237, 2021</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">Deep Learning Based Multi-Zone Autonomous Valet Parking System Utilizing V2I Communications</p>
+          <p class="pub-meta">S. K. Kale, M. S. Shahriar, A. Islam and K. H. Chang. <em>IEEE Access</em>, <span class="num">vol. 11, pp. 90510–90525, 2023</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">Real-Time RL-Based 5G Network Slicing Design and Traffic Model Distribution for V2X and eMBB Services</p>
+          <p class="pub-meta">W. J. Zhou, A. Islam and K. H. Chang. <em>KSII Transactions on Internet and Information Systems</em>, <span class="num">vol. 17, no. 9, pp. 2573–2589, 2023</span></p>
+        </div></li>
+        <li data-type="journal"><div>
+          <p class="pub-title">A Hybrid Power-Rate Management Strategy in Distributed Congestion Control for 5G-NR-V2X Sidelink Communications</p>
+          <p class="pub-meta">J. Tian, S. H. An, A. Islam and K. H. Chang. <em>Sensors</em>, <span class="num">vol. 23, no. 15, p. 6657, 2023</span></p>
+        </div></li>
+        <li data-type="review"><div>
+          <p class="pub-title">Coverage and Capacity Optimization in an O-RAN Digital Twin: Static Tuning or Learned Control? <span class="state review">submitted</span></p>
+          <p class="pub-meta">A. Islam, A. A. Badrudeen, M. Ali and S. Kim. <em>IEEE Transactions on Network and Service Management</em>, <span class="num">October 2026</span></p>
+        </div></li>
+        <li data-type="review"><div>
+          <p class="pub-title">Intent-Driven Agentic Decisions on a UAV-ISAC Digital Twin over Ray-Traced Cities: Verify, Rehearse, Commit <span class="state review">submitted</span></p>
+          <p class="pub-meta">A. Islam, A. A. Badrudeen, S. Won and S. Kim. <em>IEEE Transactions on Network Science and Engineering</em>, <span class="num">October 2026</span></p>
+        </div></li>
+        <li data-type="review"><div>
+          <p class="pub-title">Advanced DART-PRB: A Hierarchical Multi-Resolution Framework for Efficient Resource Allocation in B5G Heterogeneous Networks <span class="state review">under review</span></p>
+          <p class="pub-meta">A. Islam and K. H. Chang. <em>IEEE Transactions on Cognitive Communications and Networking</em>, <span class="num">2026</span></p>
+        </div></li>
+        <li data-type="review"><div>
+          <p class="pub-title">Semantic Cyclic Prefix: Transforming Guard Intervals into Intelligent Data Carriers for B5G OFDM Systems <span class="state review">under review</span></p>
+          <p class="pub-meta">A. Islam and K. H. Chang. <em>IEEE Journal of Selected Topics in Signal Processing</em>, <span class="num">2026</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">Empirical Communication Impairment Thresholds for Safe Cooperative Lane Changing: How Reliable Must V2X Be? <span class="state accepted">accepted</span></p>
+          <p class="pub-meta">A. Islam, A. A. Badrudeen, M. Ali, S. Kim and I. Orikumhi. <em>IEEE 104th Vehicular Technology Conference (VTC2026-Fall)</em>, Boston, <span class="num">2026</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">Doppler-Induced Orthogonality Loss in Semantic-ISAC: Provable Gap, Digital-Twin Validation, and the Missing O-RAN Observable</p>
+          <p class="pub-meta">A. Islam et al. <em>IEEE Asia-Pacific Wireless Communications Symposium</em>, Seoul, <span class="num">2026</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">AI-Based Adaptive Beamforming for Wireless Networks: Mitigating NLOS and 3D Beamforming Challenges for Enhanced Coverage</p>
+          <p class="pub-meta">M. Sajid, M. U. Khan, A. Islam and K. H. Chang. <em>KICS Conference Proceedings</em>, <span class="num">pp. 716–717, 2025</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">Adaptive AI-Powered CSI Methods for Wireless Networks: Harnessing Advanced Neural Estimation to Overcome NLOS Challenges</p>
+          <p class="pub-meta">M. U. Khan, A. Islam and K. H. Chang. <em>KICS Conference Proceedings</em>, <span class="num">pp. 241–242, 2024</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">5G NR-V2X Communications for Cooperative Resource Management of the Cell Edge User Based on Uu and PC5 Interfaces</p>
+          <p class="pub-meta">S. H. An, A. Islam and K. H. Chang. <em>IEIE Conference Proceedings</em>, <span class="num">pp. 669–672, 2021</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">Big Data Preprocessing for Real-Time Disaster Situational Awareness by Text Classification</p>
+          <p class="pub-meta">A. Islam, N. Sultana and K. H. Chang. <em>KICS Conference Proceedings</em>, <span class="num">pp. 432–433, 2020</span></p>
+        </div></li>
+        <li data-type="conference"><div>
+          <p class="pub-title">Feasibility Analysis of AI Algorithms for MCS Selection in Wireless Communication Systems</p>
+          <p class="pub-meta">N. Sultana, N. Ahmed, A. Islam and K. H. Chang. <em>KICS Conference Proceedings</em>, <span class="num">pp. 180–182, 2020</span></p>
+        </div></li>
+      </ol>
+    </section>
+
+    <section id="patents">
+      <h2>Patents and software</h2>
+      <p class="sec-note">Filed through the Inha University Industry-Academic Cooperation Foundation.</p>
+      <ul class="ip">
+        <li><span class="status">Registered</span><div>
+          <p>AI-Based Decision Support System Utilizing Dynamic Text Sources</p>
+          <span class="no">Patent 10-2466559, November 2022</span>
+        </div></li>
+        <li><span class="status filed">Filed</span><div>
+          <p>Real-Time Reinforcement Learning-Based 5G Network Slicing Design for V2X and eMBB Services</p>
+          <span class="no">Application 10-2023-0014181, February 2023</span>
+        </div></li>
+        <li><span class="status filed">Filed</span><div>
+          <p>Reinforcement Learning-Based RAN Slicing Method and System for Dynamic Resource Utilization in 5G V2X, eMBB and mMTC</p>
+          <span class="no">Application 10-2023-0077967, June 2023</span>
+        </div></li>
+        <li><span class="status filed">Filed</span><div>
+          <p>Reinforcement Learning-Based Adaptive Slice Resource Management Method and Control Apparatus</p>
+          <span class="no">Application 10-2024-0135482, October 2024</span>
+        </div></li>
+        <li><span class="status filed">Filed</span><div>
+          <p>Semantic-Aware Wireless Communication Resource Management Method and Control Apparatus</p>
+          <span class="no">Application 10-2024-0135483, October 2024</span>
+        </div></li>
+        <li><span class="status">Registered</span><div>
+          <p>Genetic Algorithm Optimization-Based Semantic Intelligent Network System Simulator for Data-Driven Adaptive Spectrum Management</p>
+          <span class="no">Software C-2024-026063, July 2024</span>
+        </div></li>
+      </ul>
+    </section>
+
+    <section id="projects">
+      <h2>National projects</h2>
+      <p class="sec-note">Korean government R&amp;D programmes funded through the Ministry of Science and ICT and IITP, coordinated as lab leader at the Mobile Telecommunications Research Lab.</p>
+      <ul class="projects">
+        <li><span class="lead">ETRI, ongoing</span>
+          <h3>Development of 3D Spatial Mobile Communication Technology</h3>
+          <p>6G core technology for efficient wireless connectivity in three-dimensional space, covering aerial and vertical mobility.</p></li>
+        <li><span class="lead">ETRI, ongoing</span>
+          <h3>Development of Intelligent Wireless Access Technologies</h3>
+          <p>6G wireless access systems targeting ultra-high intelligence and precision network operation.</p></li>
+        <li><span class="lead">Daebo Communications, 2021–2024</span>
+          <h3>5G-NR-V2X Communication Technology for Level 4+ Autonomous Driving</h3>
+          <p>Next-generation V2X communication and validation technology for intelligent transportation and telematics systems.</p></li>
+        <li><span class="lead">EUCAST, 2.5 years</span>
+          <h3>5G System Technology for the Global Private Network Market</h3>
+          <p>Specialised 5G systems for private network deployment, delivered as ICT R&amp;D with international joint research.</p></li>
+        <li><span class="lead">Ministry of Education, BK21 Phase 4</span>
+          <h3>Industry-Converged Next-Generation AI Talent Innovation Education Unit</h3>
+          <p>Cultivating AI researchers with cross-disciplinary expertise for intelligent industry applications.</p></li>
+      </ul>
+    </section>
+
+    <section id="experience">
+      <h2>Experience and education</h2>
+      <p class="sec-note">From a first software project to running a 6G research computing centre.</p>
+      <ul class="timeline">
+        <li><span class="when">2026–now</span><div>
+          <h3>Postdoctoral Researcher, Head of AI Computation Center</h3>
+          <p class="where">Beyond-G Global Innovation Center, Hanyang University</p>
+          <p class="detail">Lead AI-RAN, O-RAN and network digital-twin research. Administer a multi-node NVIDIA DGX H200 and L40S cluster running Slurm and Docker for more than 30 researchers, and maintain the ARC-OTA testbed for ISAC experiments.</p>
+        </div></li>
+        <li><span class="when">2026</span><div>
+          <h3>Workshop lead, Closed-Loop AI-RAN Optimization</h3>
+          <p class="where">Three-day international workshop hosting National Taiwan University of Science and Technology</p>
+          <p class="detail">Designed and delivered the practical track, from CU/DU/RU, RIC and xApps/rApps fundamentals to closed-loop reinforcement-learning control, including a lab that healed a real coverage dead zone from 4 dB back to 10 dB SINR.</p>
+        </div></li>
+        <li><span class="when">2019–2026</span><div>
+          <h3>PhD, Electrical and Computer Engineering</h3>
+          <p class="where">Inha University, under Prof. Kyunghi Chang, Chairman of the 6G Forum Korea</p>
+          <p class="detail">Thesis: Beyond Bit Fidelity — a domain-aware, knowledge-enhanced semantic data communication framework. Graduated with a 4.21/4.50 GPA and the Dean's Choice Best PhD Outstanding Research Award.</p>
+        </div></li>
+        <li><span class="when">2019–2026</span><div>
+          <h3>Lab leader, Mobile Telecommunications Research Lab</h3>
+          <p class="where">Inha University</p>
+          <p class="detail">Coordinated five national projects with ETRI, IITP and EUCAST, wrote proposals, delivered technical reporting, and mentored junior researchers who went on to co-author IEEE Access and Sensors papers.</p>
+        </div></li>
+        <li><span class="when">2019–2021</span><div>
+          <h3>MSc, Electrical and Computer Engineering</h3>
+          <p class="where">Inha University</p>
+          <p class="detail">Thesis: a real-time AI-based decision support system drawing on dynamic text, speech and image sources.</p>
+        </div></li>
+      </ul>
+    </section>
+
+    <section id="recognition">
+      <h2>Recognition</h2>
+      <p class="sec-note">Competitive awards and research funding.</p>
+      <div class="grant">
+        <h3>NVIDIA Academic Grant Program 2026</h3>
+        <p>AgentISAC-6G: a physics-grounded radio vision-language model for ISAC-aware O-RAN orchestration, awarded to Hanyang University for October 2026 through March 2027.</p>
+        <p class="alloc">35,000 H100 GPU-hours on NVIDIA Brev, plus one DGX Spark</p>
+      </div>
+      <ul class="awards">
+        <li><h3>Dean's Choice Best PhD Outstanding Research Award <span class="yr">2026</span></h3>
+          <p>Inha Talented Award for outstanding research during doctoral study.</p></li>
+        <li><h3>Korea BK21 AI Award, Global AI Talent Division <span class="yr">2024</span></h3>
+          <p>Recognised under the Brain Korea 21 Four Program for excellence in artificial intelligence as a promising global AI talent.</p></li>
+        <li><h3>Global Vision PhD Scholarship <span class="yr">2022</span></h3>
+          <p>Full doctoral funding from Inha University, awarded on academic record and research potential.</p></li>
+        <li><h3>Jungseok Graduate Scholarship <span class="yr">2019</span></h3>
+          <p>Seventy per cent tuition scholarship for master's study.</p></li>
+      </ul>
+    </section>
+
+    <section id="contact">
+      <h2>Get in touch</h2>
+      <p class="sec-note">I am open to postdoctoral and staff scientist positions in 6G, ISAC, O-RAN and AI-native wireless systems, and happy to discuss collaborations or talks.</p>
+      <div class="contacts">
+        <a class="primary" href="mailto:azharul.dream007@gmail.com"><span class="dot"></span>azharul.dream007@gmail.com</a>
+        <a href="https://scholar.google.co.kr/citations?hl=en&amp;user=qWDmk-wAAAAJ" target="_blank" rel="noopener"><span class="dot"></span>Google Scholar</a>
+        <a href="https://linkedin.com/in/dr-azharul-islam" target="_blank" rel="noopener"><span class="dot"></span>LinkedIn</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="lines">
+      <span>Azharul Islam, PhD</span>
+      <span>Beyond-G Global Innovation Center, Hanyang University</span>
+      <span>Seoul, South Korea</span>
+    </div>
+    <div class="lines">
+      <a href="mailto:azharul.dream007@gmail.com">azharul.dream007@gmail.com</a>
+    </div>
+  </div>
+</footer>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Full size photograph">
+  <button class="close" type="button" id="lbClose">Close</button>
+  <img id="lbImg" src="" alt="">
+  <p id="lbcap"></p>
+</div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------- publication filter ---------------- */
+  var buttons = document.querySelectorAll('.filters button');
+  var items = document.querySelectorAll('#biblio li');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var want = btn.dataset.filter;
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+      items.forEach(function (li) { li.hidden = !(want === 'all' || li.dataset.type === want); });
+    });
+  });
+
+  /* ---------------- scroll progress ---------------- */
+  var bar = document.getElementById('progress');
+  var ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(window.scrollY / h, 1) : 0) + ')';
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------------- scroll spy ---------------- */
+  var navMap = {};
+  document.querySelectorAll('.navlinks a').forEach(function (a) {
+    navMap[a.getAttribute('href').slice(1)] = a;
+  });
+  if ('IntersectionObserver' in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var link = navMap[en.target.id];
+        if (!link || !en.isIntersecting) return;
+        Object.keys(navMap).forEach(function (k) { navMap[k].classList.remove('current'); });
+        link.classList.add('current');
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    Object.keys(navMap).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) spy.observe(el);
+    });
+  }
+
+  /* ---------------- figure count-up ---------------- */
+  document.querySelectorAll('.fig dt').forEach(function (el) {
+    var target = parseInt(el.dataset.count, 10);
+    if (reduce || !target) return;
+    var dur = 1100, t0 = null;
+    function step(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString('en-US');
+      if (p < 1) requestAnimationFrame(step); else el.textContent = target.toLocaleString('en-US');
+    }
+    el.textContent = '0';
+    requestAnimationFrame(step);
+  });
+
+  /* ---------------- hero background slider ---------------- */
+  var hero = document.querySelector('.hero');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.bgslide'));
+  var rail = document.getElementById('rail');
+  var capEl = document.getElementById('slideCap');
+  var seqEl = document.getElementById('slideSeq');
+  var DWELL = 6000;
+  var idx = 0, timer = null, paused = false;
+
+  var pips = slides.map(function (_, i) {
+    var b = document.createElement('button');
+    b.className = 'pip'; b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-label', 'Photograph ' + (i + 1) + ' of ' + slides.length);
+    b.style.setProperty('--dwell', DWELL + 'ms');
+    b.appendChild(document.createElement('span'));
+    b.addEventListener('click', function () { show(i, true); });
+    rail.appendChild(b);
+    return b;
+  });
+
+  function show(n, manual) {
+    idx = (n + slides.length) % slides.length;
+    slides.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
+    pips.forEach(function (p, i) {
+      p.classList.remove('timing');
+      p.setAttribute('aria-current', String(i === idx));
+      void p.offsetWidth;
+      if (i === idx && !paused && !reduce) p.classList.add('timing');
+    });
+    capEl.textContent = slides[idx].dataset.cap;
+    seqEl.textContent = slides[idx].dataset.seq;
+    if (manual) restart();
+  }
+  function restart() {
+    clearInterval(timer);
+    if (reduce || paused) return;
+    timer = setInterval(function () { show(idx + 1); }, DWELL);
+    var p = pips[idx];
+    p.classList.remove('timing'); void p.offsetWidth; p.classList.add('timing');
+  }
+  function pause() { paused = true; clearInterval(timer); pips.forEach(function (p) { p.classList.remove('timing'); }); }
+  function resume() { paused = false; restart(); }
+
+  document.querySelector('.arrow.next').addEventListener('click', function () { show(idx + 1, true); });
+  document.querySelector('.arrow.prev').addEventListener('click', function () { show(idx - 1, true); });
+  hero.addEventListener('mouseenter', pause);
+  hero.addEventListener('mouseleave', resume);
+  hero.addEventListener('focusin', pause);
+  hero.addEventListener('focusout', function (e) { if (!hero.contains(e.relatedTarget)) resume(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearInterval(timer); else if (!paused) restart();
+  });
+  hero.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); show(idx + 1, true); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(idx - 1, true); }
+  });
+
+  var x0 = null;
+  hero.addEventListener('pointerdown', function (e) { x0 = e.clientX; });
+  hero.addEventListener('pointerup', function (e) {
+    if (x0 === null) return;
+    var dx = e.clientX - x0; x0 = null;
+    if (Math.abs(dx) > 55) show(idx + (dx < 0 ? 1 : -1), true);
+  });
+  hero.addEventListener('pointercancel', function () { x0 = null; });
+
+  // stop the carousel once the hero is scrolled away
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (en) {
+        if (en.isIntersecting) { if (!paused) restart(); }
+        else { clearInterval(timer); }
+      });
+    }, { threshold: 0.15 }).observe(hero);
+  }
+
+  show(0);
+  restart();
+
+  /* ---------------- lightbox: native ratio, uncropped ---------------- */
+  var lb = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  var lbCap = document.getElementById('lbcap');
+  function openLb() {
+    var shot = slides[idx].querySelector('img');
+    lbImg.src = shot.getAttribute('src');
+    lbImg.alt = shot.getAttribute('alt');
+    lbCap.textContent = slides[idx].dataset.cap;
+    lb.classList.add('open');
+    document.getElementById('lbClose').focus();
+    pause();
+  }
+  function closeLb() { lb.classList.remove('open'); lbImg.src = ''; resume(); }
+  document.getElementById('zoomBtn').addEventListener('click', openLb);
+  document.getElementById('lbClose').addEventListener('click', closeLb);
+  lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lb.classList.contains('open')) closeLb();
+  });
+
+  /* ---------------- 16-QAM constellation ---------------- */
+  var cvs = document.getElementById('qam');
+  if (!cvs) return;
+  var ctx = cvs.getContext('2d');
+  var evmOut = document.getElementById('evm');
+  var LEVELS = [-3, -1, 1, 3];
+  var pts = [];
+  LEVELS.forEach(function (i) {
+    LEVELS.forEach(function (q) {
+      for (var s = 0; s < 13; s++) {
+        pts.push({ i: i, q: q,
+          ai: Math.random() * Math.PI * 2, aq: Math.random() * Math.PI * 2,
+          si: 0.6 + Math.random() * 0.9, sq: 0.6 + Math.random() * 0.9,
+          r0: Math.random() });
+      }
+    });
+  });
+
+  var W = 0, H = 0, DPR = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    var rect = cvs.getBoundingClientRect();
+    W = Math.max(rect.width, 1); H = W;
+    cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  function toPx(v) { return (v / 4.6) * (W / 2) + W / 2; }
+  function grid() {
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(22,49,74,0.85)';
+    LEVELS.forEach(function (v) {
+      var p = Math.round(toPx(v)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(W, p); ctx.stroke();
+    });
+    ctx.strokeStyle = 'rgba(16,37,55,0.9)';
+    [-2, 0, 2].forEach(function (v) {
+      var p = Math.round(toPx(v)) + 0.5;
+      ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(W, p); ctx.stroke();
+    });
+    ctx.strokeStyle = 'rgba(98,123,145,0.45)';
+    var c = Math.round(toPx(0)) + 0.5;
+    ctx.beginPath(); ctx.moveTo(c, 0); ctx.lineTo(c, H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, c); ctx.lineTo(W, c); ctx.stroke();
+  }
+  function mix(a, b, t) { return Math.round(a + (b - a) * t); }
+  var START = 2.45, END = 0.075, DUR = 2600, t0 = null, running = false;
+
+  function draw(noise, lockT, phase) {
+    ctx.clearRect(0, 0, W, H);
+    grid();
+    var r = Math.max(1.5, W / 230);
+    var cr = mix(246, 69, lockT), cg = mix(169, 208, lockT), cb = mix(59, 192, lockT);
+    var fill = 'rgba(' + cr + ',' + cg + ',' + cb + ',0.72)';
+    var glow = 'rgba(' + cr + ',' + cg + ',' + cb + ',0.14)';
+    for (var k = 0; k < pts.length; k++) {
+      var p = pts[k];
+      var di = Math.cos(p.ai + phase * p.si) * noise * (0.45 + p.r0);
+      var dq = Math.sin(p.aq + phase * p.sq) * noise * (0.45 + p.r0);
+      var x = toPx(p.i + di), y = toPx(-(p.q + dq));
+      ctx.fillStyle = glow;
+      ctx.beginPath(); ctx.arc(x, y, r * 2.6, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = fill;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.fill();
+    }
+  }
+  function setEvm(noise) {
+    var pct = Math.max(2.1, Math.min(45, noise * 18.2));
+    evmOut.textContent = pct.toFixed(1);
+    evmOut.classList.toggle('locked', pct <= 3.0);
+  }
+  function frame(ts) {
+    if (t0 === null) t0 = ts;
+    var e = Math.min((ts - t0) / DUR, 1);
+    var eased = 1 - Math.pow(1 - e, 3);
+    var noise = START + (END - START) * eased;
+    draw(noise, eased, ts / 1000);
+    setEvm(noise);
+    if (e < 1) requestAnimationFrame(frame); else requestAnimationFrame(ambient);
+  }
+  function ambient(ts) { draw(END, 1, ts / 1000); requestAnimationFrame(ambient); }
+
+  function startScope() {
+    resize();
+    if (reduce) { draw(END, 1, 0); setEvm(END); return; }
+    draw(START, 0, 0); setEvm(START);
+    // run the lock sequence when the constellation first comes into view
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es, obs) {
+        es.forEach(function (en) {
+          if (en.isIntersecting && !running) {
+            running = true; t0 = null; requestAnimationFrame(frame); obs.disconnect();
+          }
+        });
+      }, { threshold: 0.3 }).observe(cvs);
+    } else { running = true; t0 = null; requestAnimationFrame(frame); }
+  }
+  var rt;
+  window.addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { resize(); if (reduce) draw(END, 1, 0); }, 150);
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(startScope); else startScope();
+})();
+</script>
+
+</body>
+</html>
