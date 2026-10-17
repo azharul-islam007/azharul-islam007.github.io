@@ -591,10 +591,10 @@
       <div class="demos">
 
         <article class="demo">
-          <video controls preload="none" poster="img/demo-cco.jpg" playsinline
+          <video controls controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="none" poster="img/demo-cco.jpg" playsinline
                  aria-label="Demonstration of coverage and capacity optimization in an O-RAN digital twin">
             <source src="videos/cco-oran-digital-twin.mp4" type="video/mp4">
-            <p>Your browser cannot play this video. <a href="videos/cco-oran-digital-twin.mp4">Download the file</a> instead.</p>
+            <p>Your browser cannot play this video. Please try a current version of Chrome, Edge, Safari or Firefox.</p>
           </video>
           <div class="demo-meta">
             <h3>Coverage and Capacity Optimization in an O-RAN Digital Twin</h3>
@@ -608,10 +608,10 @@
         </article>
 
         <article class="demo">
-          <video controls preload="none" poster="img/demo-uav.jpg" playsinline
+          <video controls controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="none" poster="img/demo-uav.jpg" playsinline
                  aria-label="Demonstration of intent-driven agentic decisions on a UAV-ISAC digital twin">
             <source src="videos/uav-isac-agentic-twin.mp4" type="video/mp4">
-            <p>Your browser cannot play this video. <a href="videos/uav-isac-agentic-twin.mp4">Download the file</a> instead.</p>
+            <p>Your browser cannot play this video. Please try a current version of Chrome, Edge, Safari or Firefox.</p>
           </video>
           <div class="demo-meta">
             <h3>Intent-Driven Agentic Decisions on a UAV-ISAC Digital Twin</h3>
@@ -625,10 +625,10 @@
         </article>
 
         <article class="demo">
-          <video controls preload="none" poster="img/demo-v2x.jpg" playsinline
+          <video controls controlsList="nodownload noplaybackrate" disablePictureInPicture disableRemotePlayback preload="none" poster="img/demo-v2x.jpg" playsinline
                  aria-label="Demonstration of communication impairment thresholds for safe cooperative lane changing">
             <source src="videos/v2x-lane-changing.mp4" type="video/mp4">
-            <p>Your browser cannot play this video. <a href="videos/v2x-lane-changing.mp4">Download the file</a> instead.</p>
+            <p>Your browser cannot play this video. Please try a current version of Chrome, Edge, Safari or Firefox.</p>
           </video>
           <div class="demo-meta">
             <h3>How Reliable Must V2X Be for Safe Cooperative Lane Changing?</h3>
@@ -880,6 +880,12 @@
     });
   });
 
+
+
+  /* ---------------- discourage casual video saving ---------------- */
+  document.querySelectorAll('.demo video').forEach(function (v) {
+    v.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  });
 
   /* ---------------- demo -> publication deep links ---------------- */
   document.querySelectorAll('a.paper-link').forEach(function (a) {
