@@ -27,6 +27,12 @@
     0%, 62% { background: color-mix(in srgb, var(--lock) 17%, transparent); box-shadow: inset 3px 0 0 var(--lock); }
     100%    { background: transparent; box-shadow: inset 3px 0 0 transparent; }
   }
+
+  .theme .tag.wip { color: var(--signal); }
+  .theme .tag.wip::before {
+    content: ""; display: inline-block; width: 6px; height: 6px;
+    background: var(--signal); margin-right: 7px; vertical-align: 1px;
+  }
 </style>
 <title>Azharul Islam</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -539,7 +545,7 @@
       <div class="research-top">
         <div>
           <h2>Research</h2>
-          <p class="sec-note">Four lines of work, each one moving from a theoretical result to something that runs on real infrastructure. The constellation alongside is the problem in one picture: sixteen symbols scattered by channel noise, resolving onto the decision lattice as the receiver acquires lock.</p>
+          <p class="sec-note">Six lines of work, each one moving from a theoretical result to something that runs on real infrastructure. The last is still open. The constellation alongside is the problem in one picture: sixteen symbols scattered by channel noise, resolving onto the decision lattice as the receiver acquires lock.</p>
         </div>
         <figure class="scope">
           <div class="scope-head">
@@ -579,6 +585,21 @@
           <div>
             <p>Hierarchical multi-resolution deep Q-networks for physical resource block allocation across B5G heterogeneous networks, combining traffic prediction with interference management. Five patent filings came out of this line.</p>
             <span class="tag">IEEE TCCN, under review</span>
+          </div>
+        </article>
+        <article class="theme">
+          <h3>Language models in the control loop</h3>
+          <div>
+            <p>On the UAV-ISAC twin an LLM orchestrator turns an operator's natural-language intent into a typed policy, which deterministic rule verification then checks against the mission contract before anything is rehearsed or committed. The model proposes; it never decides. The same instinct runs through my semantic work, where domain knowledge lets a dual-mode framework carry what text <em>means</em> across a damaged channel instead of reproducing its bits.</p>
+            <span class="tag">IEEE TNSE 2026, vol. 13. IEEE TNSE, submitted</span>
+          </div>
+        </article>
+        <article class="theme">
+          <h3>Physical AI and certified safety</h3>
+          <div>
+            <p>NetShield asks whether a 6G network can serve as a certified safety sensor for warehouse robots. A mobile robot's lidar sees only line of sight, so it must crawl past blind spots; base stations that sense people as well as carry traffic could cover what the robot cannot. A safety filter sits between the planner and the wheels and admits a motion command only if the robot could still stop for anyone it has not yet seen, so that if a person does reach it, the robot is already at rest. It runs on a simulated warehouse twin with Nav2 navigation, pedestrians driven by motion-capture data, and a simulated 6G network.</p>
+            <p style="margin-top:12px">The honest result so far is negative, and more interesting for it: at today's 6G specification the network cannot see well enough near the robot to earn it any extra speed, and the lidar still does the work. That inverted the question into the one the project now answers — what must a network actually provide, in base-station height and count, range resolution, and fusion with the robot's own sensors, before it can certify a robot's surroundings?</p>
+            <span class="tag wip">In progress, targeting IEEE Transactions on Robotics</span>
           </div>
         </article>
       </div>
