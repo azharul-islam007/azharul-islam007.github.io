@@ -17,6 +17,16 @@
   html { -webkit-text-size-adjust: 100%; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
+
+  .demo-facts a.paper-link { text-decoration: none; transition: background .2s var(--ease), color .2s var(--ease); }
+  .demo-facts a.paper-link:hover,
+  .demo-facts a.paper-link:focus-visible { background: var(--lock); color: #06121F; }
+  ol.biblio li { scroll-margin-top: 110px; }
+  ol.biblio li.flash { animation: flashref 2.4s var(--ease); }
+  @keyframes flashref {
+    0%, 62% { background: color-mix(in srgb, var(--lock) 17%, transparent); box-shadow: inset 3px 0 0 var(--lock); }
+    100%    { background: transparent; box-shadow: inset 3px 0 0 transparent; }
+  }
 </style>
 <title>Azharul Islam</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -588,7 +598,7 @@
             <h3>Coverage and Capacity Optimization in an O-RAN Digital Twin</h3>
             <p>Static tuning measured against learned control inside the twin, with the full safe-automation path: shadow mode, promotion gate, automatic rollback.</p>
             <div class="demo-facts">
-              <span class="venue">IEEE TNSM, submitted</span>
+              <a class="venue paper-link" href="#pub-tnsm">IEEE TNSM, submitted</a>
               <span>5 min 46 s</span>
               <span>1080p</span>
             </div>
@@ -605,7 +615,7 @@
             <h3>Intent-Driven Agentic Decisions on a UAV-ISAC Digital Twin</h3>
             <p>An operator states an intent in natural language; the system verifies it against the mission contract, rehearses it in a forked twin, and only then commits under a lock. Built over ray-traced cities in Sionna RT.</p>
             <div class="demo-facts">
-              <span class="venue">IEEE TNSE, submitted</span>
+              <a class="venue paper-link" href="#pub-tnse">IEEE TNSE, submitted</a>
               <span>4 min 59 s</span>
               <span>1080p</span>
             </div>
@@ -622,7 +632,7 @@
             <h3>How Reliable Must V2X Be for Safe Cooperative Lane Changing?</h3>
             <p>Empirical impairment thresholds for cooperative lane changes, mapping where latency, loss and range stop being survivable for the manoeuvre.</p>
             <div class="demo-facts">
-              <span class="venue">IEEE VTC2026-Fall, accepted</span>
+              <a class="venue paper-link" href="#pub-vtc">IEEE VTC2026-Fall, accepted</a>
               <span>1 min 54 s</span>
               <span>1080p</span>
             </div>
@@ -670,11 +680,11 @@
           <p class="pub-title">A Hybrid Power-Rate Management Strategy in Distributed Congestion Control for 5G-NR-V2X Sidelink Communications</p>
           <p class="pub-meta">J. Tian, S. H. An, A. Islam and K. H. Chang. <em>Sensors</em>, <span class="num">vol. 23, no. 15, p. 6657, 2023</span></p>
         </div></li>
-        <li data-type="review"><div>
+        <li data-type="review" id="pub-tnsm"><div>
           <p class="pub-title">Coverage and Capacity Optimization in an O-RAN Digital Twin: Static Tuning or Learned Control? <span class="state review">submitted</span></p>
           <p class="pub-meta">A. Islam, A. A. Badrudeen, M. Ali and S. Kim. <em>IEEE Transactions on Network and Service Management</em>, <span class="num">October 2026</span></p>
         </div></li>
-        <li data-type="review"><div>
+        <li data-type="review" id="pub-tnse"><div>
           <p class="pub-title">Intent-Driven Agentic Decisions on a UAV-ISAC Digital Twin over Ray-Traced Cities: Verify, Rehearse, Commit <span class="state review">submitted</span></p>
           <p class="pub-meta">A. Islam, A. A. Badrudeen, S. Won and S. Kim. <em>IEEE Transactions on Network Science and Engineering</em>, <span class="num">October 2026</span></p>
         </div></li>
@@ -686,7 +696,7 @@
           <p class="pub-title">Semantic Cyclic Prefix: Transforming Guard Intervals into Intelligent Data Carriers for B5G OFDM Systems <span class="state review">under review</span></p>
           <p class="pub-meta">A. Islam and K. H. Chang. <em>IEEE Journal of Selected Topics in Signal Processing</em>, <span class="num">2026</span></p>
         </div></li>
-        <li data-type="conference"><div>
+        <li data-type="conference" id="pub-vtc"><div>
           <p class="pub-title">Empirical Communication Impairment Thresholds for Safe Cooperative Lane Changing: How Reliable Must V2X Be? <span class="state accepted">accepted</span></p>
           <p class="pub-meta">A. Islam, A. A. Badrudeen, M. Ali, S. Kim and I. Orikumhi. <em>IEEE 104th Vehicular Technology Conference (VTC2026-Fall)</em>, Boston, <span class="num">2026</span></p>
         </div></li>
@@ -865,6 +875,25 @@
       var want = btn.dataset.filter;
       buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
       items.forEach(function (li) { li.hidden = !(want === 'all' || li.dataset.type === want); });
+    });
+  });
+
+
+  /* ---------------- demo -> publication deep links ---------------- */
+  document.querySelectorAll('a.paper-link').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var target = document.querySelector(a.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      if (target.hidden) {                       // a filter is hiding it
+        var all = document.querySelector('.filters button[data-filter="all"]');
+        if (all) all.click();
+      }
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      target.classList.remove('flash');
+      void target.offsetWidth;
+      target.classList.add('flash');
+      history.replaceState(null, '', a.getAttribute('href'));
     });
   });
 
