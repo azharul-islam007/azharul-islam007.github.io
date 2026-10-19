@@ -13,14 +13,14 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305101C'/%3E%3Cg fill='%23F6A93B'%3E%3Ccircle cx='9' cy='9' r='2'/%3E%3Ccircle cx='23' cy='9' r='2'/%3E%3Ccircle cx='9' cy='23' r='2'/%3E%3Ccircle cx='23' cy='23' r='2'/%3E%3C/g%3E%3Cg fill='%2345D0C0'%3E%3Ccircle cx='16' cy='16' r='2'/%3E%3C/g%3E%3C/svg%3E">
 <style>
   /* baseline reset (the artifact host normally supplies this) */
-  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); color-scheme: dark; }
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); color-scheme: light dark; }
   html { -webkit-text-size-adjust: 100%; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
 
   .demo-facts a.paper-link { text-decoration: none; transition: background .2s var(--ease), color .2s var(--ease); }
   .demo-facts a.paper-link:hover,
-  .demo-facts a.paper-link:focus-visible { background: var(--lock); color: #06121F; }
+  .demo-facts a.paper-link:focus-visible { background: var(--lock); color: var(--on-accent); }
   ol.biblio li { scroll-margin-top: 110px; }
   ol.biblio li.flash { animation: flashref 2.4s var(--ease); }
   @keyframes flashref {
@@ -38,6 +38,81 @@
     font-family: var(--mono); font-size: 12.5px; font-weight: 400;
     color: var(--signal); letter-spacing: 0; vertical-align: 3px; margin-left: 6px;
   }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  /* theme toggle */
+  .tgl {
+    display: inline-flex; align-items: center; gap: 7px;
+    font: inherit; font-size: 12px; font-family: var(--mono);
+    background: transparent; border: 1px solid var(--line);
+    color: var(--ink-dim); padding: 6px 11px; cursor: pointer;
+    transition: border-color .2s var(--ease), color .2s var(--ease), background .2s var(--ease);
+  }
+  .tgl:hover { border-color: var(--signal); color: var(--ink); background: var(--panel-2); }
+  .tgl svg { width: 13px; height: 13px; }
+  .tgl .sun { display: none; }
+  :root[data-theme="dark"] .tgl .sun { display: block; }
+  :root[data-theme="dark"] .tgl .moon { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .tgl .sun { display: block; }
+    :root:not([data-theme="light"]) .tgl .moon { display: none; }
+  }
+
+  /* the hero sits on photographs, so it stays dark in both themes */
+  .hero { color: #E9F1F8; }
+  .hero h1, .hero .role { color: #F3F8FC; }
+  .hero .affil, .hero .lede { color: #C3D3E0; }
+  .hero .lede strong { color: #FFFFFF; }
+  .hero .contacts a { background: rgba(10,26,43,.72); border-color: rgba(190,214,232,.34); color: #DCE8F2; }
+  .hero .contacts a:hover { background: rgba(13,34,53,.92); border-color: var(--signal); color: #fff; }
+  .hero .shotinfo .cap { color: #C9D8E4; }
+  .hero .arrow, .hero .zoom { background: rgba(5,16,28,.68); border-color: rgba(190,214,232,.3); color: #E9F1F8; }
+  .hero .pip { background: rgba(190,214,232,.32); }
+  .cue { color: rgba(214,228,239,.8); }
+  .cue i { background: linear-gradient(rgba(214,228,239,.8), transparent); }
+
+  /* lift cards off a light ground */
+  .themes, .projects, .stage { box-shadow: var(--shadow); }
+  .scope { box-shadow: var(--shadow); }
+
+  /* ---------------- motion layer ---------------- */
+  .rv { opacity: 0; transform: translateY(20px); }
+  .rv.in { opacity: 1; transform: none; transition: opacity .62s var(--ease), transform .62s var(--ease); }
+  .rv-d1.in { transition-delay: .07s; }
+  .rv-d2.in { transition-delay: .14s; }
+  .rv-d3.in { transition-delay: .21s; }
+  .rv-d4.in { transition-delay: .28s; }
+  .rv-d5.in { transition-delay: .35s; }
+
+  h2 { position: relative; display: inline-block; padding-bottom: 7px; }
+  h2::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+    background: linear-gradient(90deg, var(--signal), var(--lock));
+    transform: scaleX(0); transform-origin: 0 50%;
+    transition: transform .7s var(--ease) .1s;
+  }
+  h2.in::after { transform: scaleX(1); }
+
+  .theme { position: relative; }
+  .theme::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--lock); transform: scaleY(0); transform-origin: 50% 0;
+    transition: transform .35s var(--ease);
+  }
+  .theme:hover::before { transform: scaleY(1); }
+  .projects li { position: relative; transition: background .25s var(--ease), transform .25s var(--ease); }
+  .projects li:hover { transform: translateX(3px); }
+  .fig dt { transition: transform .3s var(--ease); }
+  .fig:hover dt { transform: translateY(-3px); }
+  .demo video { transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+  .demo:hover video { transform: translateY(-4px); box-shadow: var(--shadow); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rv, .rv.in { opacity: 1 !important; transform: none !important; }
+    h2::after { transform: scaleX(1) !important; }
+  }
 </style>
 <title>Azharul Islam</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,6 +120,51 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
   :root {
+    /* light is the default; dark is redefined below */
+    --ground: #F7F9FB;
+    --panel: #FFFFFF;
+    --panel-2: #EDF3F8;
+    --line: #CBD9E4;
+    --line-soft: #E2EAF1;
+    --ink: #0D1A26;
+    --ink-dim: #41586C;
+    --ink-faint: #6B8296;
+    --signal: #B5690A;
+    --lock: #0C7A70;
+    --on-accent: #FFFFFF;
+    --shadow: 0 1px 2px rgba(13,26,38,.05), 0 8px 24px rgba(13,26,38,.07);
+    --canvas-grid: rgba(150,175,196,.55);
+    --canvas-bound: rgba(186,205,219,.75);
+    --canvas-axis: rgba(95,120,142,.5);
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --col: 1120px;
+    --gutter: 24px;
+    --ease: cubic-bezier(.22, 1, .36, 1);
+  }
+
+  /* dark: follows the system unless the viewer has explicitly chosen light */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05101C;
+      --panel: #0A1A2B;
+      --panel-2: #0D2235;
+      --line: #16314A;
+      --line-soft: #102537;
+      --ink: #E2EDF6;
+      --ink-dim: #9DB2C6;
+      --ink-faint: #627B91;
+      --signal: #F6A93B;
+      --lock: #45D0C0;
+      --on-accent: #06121F;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+      --canvas-grid: rgba(22,49,74,.85);
+      --canvas-bound: rgba(16,37,55,.9);
+      --canvas-axis: rgba(98,123,145,.45);
+    }
+  }
+  /* and again for the explicit toggle, so it wins in both directions */
+  :root[data-theme="dark"] {
     --ground: #05101C;
     --panel: #0A1A2B;
     --panel-2: #0D2235;
@@ -55,11 +175,11 @@
     --ink-faint: #627B91;
     --signal: #F6A93B;
     --lock: #45D0C0;
-    --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
-    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
-    --col: 1120px;
-    --gutter: 24px;
-    --ease: cubic-bezier(.22, 1, .36, 1);
+    --on-accent: #06121F;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+    --canvas-grid: rgba(22,49,74,.85);
+    --canvas-bound: rgba(16,37,55,.9);
+    --canvas-axis: rgba(98,123,145,.45);
   }
 
   * { box-sizing: border-box; }
@@ -86,7 +206,7 @@
 
   .skip {
     position: absolute; left: -9999px; top: 0;
-    background: var(--signal); color: #06121F;
+    background: var(--signal); color: var(--on-accent);
     padding: 10px 16px; font-weight: 600; z-index: 80;
   }
   .skip:focus { left: 8px; top: 8px; }
@@ -325,7 +445,7 @@
     cursor: pointer; transition: all .22s var(--ease);
   }
   .filters button:hover { border-color: var(--ink-faint); color: var(--ink); }
-  .filters button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal); color: #06121F; font-weight: 600; }
+  .filters button[aria-pressed="true"] { background: var(--signal); border-color: var(--signal); color: var(--on-accent); font-weight: 600; }
 
   ol.biblio { list-style: none; margin: 0; padding: 0; counter-reset: ref; }
   ol.biblio li {
@@ -459,6 +579,11 @@
       <a href="#projects">Projects</a>
       <a href="#experience">Experience</a>
       <a href="#contact">Contact</a>
+      <button class="tgl" type="button" id="themeBtn" aria-label="Switch colour theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+        <span id="themeLbl">Dark</span>
+      </button>
     </nav>
   </div>
   <div id="progress"></div>
@@ -895,6 +1020,52 @@
 (function () {
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+
+  /* ---------------- theme toggle ---------------- */
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('themeBtn');
+  var themeLbl = document.getElementById('themeLbl');
+  function sysDark() { return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    return t ? t === 'dark' : sysDark();
+  }
+  function paint() { themeLbl.textContent = isDark() ? 'Light' : 'Dark'; }
+  try {
+    var saved = localStorage.getItem('theme');
+    if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  } catch (e) {}
+  paint();
+  themeBtn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    paint();
+    if (window.__repaintScope) window.__repaintScope();
+  });
+
+  /* ---------------- scroll reveals ---------------- */
+  var revealTargets = [];
+  document.querySelectorAll('.themes .theme, .projects li, .fig, ol.biblio li, .ip li, .timeline li, .awards li, .grant, .demo, .sec-note, h2')
+    .forEach(function (el) { el.classList.add('rv'); revealTargets.push(el); });
+  document.querySelectorAll('.themes .theme, .projects li, .demo').forEach(function (el, i) {
+    el.classList.add('rv-d' + ((i % 5) + 1));
+  });
+  function revealAll() { revealTargets.forEach(function (el) { el.classList.add('in'); }); }
+  if (reduce || !('IntersectionObserver' in window)) {
+    revealAll();
+  } else {
+    var ro = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('in');
+        obs.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    revealTargets.forEach(function (el) { ro.observe(el); });
+    setTimeout(revealAll, 2500);   // nothing stays hidden if the observer misses
+  }
+
   /* ---------------- publication filter ---------------- */
   var buttons = document.querySelectorAll('.filters button');
   var items = document.querySelectorAll('#biblio li');
@@ -1108,22 +1279,23 @@
     cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
   function toPx(v) { return (v / 4.6) * (W / 2) + W / 2; }
   function grid() {
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(22,49,74,0.85)';
+    ctx.strokeStyle = cssVar('--canvas-grid');
     LEVELS.forEach(function (v) {
       var p = Math.round(toPx(v)) + 0.5;
       ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, H); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(W, p); ctx.stroke();
     });
-    ctx.strokeStyle = 'rgba(16,37,55,0.9)';
+    ctx.strokeStyle = cssVar('--canvas-bound');
     [-2, 0, 2].forEach(function (v) {
       var p = Math.round(toPx(v)) + 0.5;
       ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, H); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(W, p); ctx.stroke();
     });
-    ctx.strokeStyle = 'rgba(98,123,145,0.45)';
+    ctx.strokeStyle = cssVar('--canvas-axis');
     var c = Math.round(toPx(0)) + 0.5;
     ctx.beginPath(); ctx.moveTo(c, 0); ctx.lineTo(c, H); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, c); ctx.lineTo(W, c); ctx.stroke();
@@ -1185,6 +1357,7 @@
     clearTimeout(rt);
     rt = setTimeout(function () { resize(); if (reduce) draw(END, 1, 0); }, 150);
   });
+  window.__repaintScope = function () { if (reduce) { draw(END, 1, 0); } };
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(startScope); else startScope();
 })();
 </script>
