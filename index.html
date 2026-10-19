@@ -65,7 +65,7 @@
   .hero h1, .hero .role { color: #F3F8FC; }
   .hero .affil, .hero .lede { color: #C3D3E0; }
   .hero .lede strong { color: #FFFFFF; }
-  .hero .contacts a { background: rgba(10,26,43,.72); border-color: rgba(190,214,232,.34); color: #DCE8F2; }
+  .hero .contacts a { background: rgba(10,26,43,.72); backdrop-filter: blur(6px); border-color: rgba(190,214,232,.34); color: #DCE8F2; }
   .hero .contacts a:hover { background: rgba(13,34,53,.92); border-color: var(--signal); color: #fff; }
   .hero .shotinfo .cap { color: #C9D8E4; }
   .hero .arrow, .hero .zoom { background: rgba(5,16,28,.68); border-color: rgba(190,214,232,.3); color: #E9F1F8; }
@@ -311,14 +311,14 @@
   .contacts a {
     display: inline-flex; align-items: center; gap: 8px;
     text-decoration: none; font-size: 14px; padding: 10px 16px;
-    border: 1px solid var(--line); background: rgba(10,26,43,.78);
-    backdrop-filter: blur(6px); color: var(--ink-dim);
+    border: 1px solid var(--line); background: var(--panel);
+    color: var(--ink-dim);
     transition: border-color .22s var(--ease), color .22s var(--ease),
                 background .22s var(--ease), transform .22s var(--ease);
   }
   .contacts a:hover {
     border-color: var(--signal); color: var(--ink);
-    background: rgba(13,34,53,.92); transform: translateY(-2px);
+    background: var(--panel-2); transform: translateY(-2px);
   }
   .contacts a.primary { border-color: color-mix(in srgb, var(--signal) 55%, var(--line)); color: var(--ink); }
   .dot { width: 6px; height: 6px; background: var(--signal); flex: none; }
