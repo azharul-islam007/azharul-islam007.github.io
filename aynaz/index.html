@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>
+// same theme choice as the rest of the site; dark is the default
+try {
+  var t = localStorage.getItem('theme');
+  if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+} catch (e) {}
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aynaz | Azharul Islam</title>
+<meta name="description" content="Aynaz is a free document reader that explains any words you select, the way the document uses them, with an AI model that runs on your own computer.">
+<meta name="author" content="Dr. Azharul Islam">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    --ground: #F7F9FB; --panel: #FFFFFF; --panel-2: #EDF3F8; --line: #CBD9E4; --line-soft: #E2EAF1;
+    --ink: #0D1A26; --ink-dim: #41586C; --ink-faint: #6B8296; --signal: #B5690A; --lock: #0C7A70; --on-accent: #FFFFFF;
+    --shadow: 0 1px 2px rgba(13,26,38,.05), 0 8px 24px rgba(13,26,38,.07);
+    --sans: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+    --col: 1120px; --gutter: 24px; --ease: cubic-bezier(.22, 1, .36, 1);
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #05101C; --panel: #0A1A2B; --panel-2: #0D2235; --line: #16314A; --line-soft: #102537;
+      --ink: #E2EDF6; --ink-dim: #9DB2C6; --ink-faint: #627B91; --signal: #F6A93B; --lock: #45D0C0; --on-accent: #06121F;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #05101C; --panel: #0A1A2B; --panel-2: #0D2235; --line: #16314A; --line-soft: #102537;
+    --ink: #E2EDF6; --ink-dim: #9DB2C6; --ink-faint: #627B91; --signal: #F6A93B; --lock: #45D0C0; --on-accent: #06121F;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45); color-scheme: dark;
+  }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  [hidden] { display: none !important; }
+  img { max-width: 100%; height: auto; display: block; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .wrap { max-width: var(--col); margin: 0 auto; padding-inline: max(var(--gutter), env(safe-area-inset-left, 0px)) max(var(--gutter), env(safe-area-inset-right, 0px)); }
+  a { color: var(--ink); }
+  :is(a, button, summary):focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; border-radius: 2px; }
+  .skip { position: absolute; left: -9999px; top: 0; background: var(--signal); color: var(--on-accent); padding: 10px 16px; font-weight: 600; z-index: 80; }
+  .skip:focus { left: 8px; top: 8px; }
+
+  /* masthead: the same as the home page */
+  .masthead { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; background: color-mix(in srgb, var(--ground) 80%, transparent);
+    backdrop-filter: blur(14px); border-bottom: 1px solid var(--line-soft); }
+  .masthead-in { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-block: 13px; flex-wrap: wrap; }
+  .mark { font-weight: 600; letter-spacing: -0.01em; text-decoration: none; font-size: 15px; }
+  .mark span { color: var(--ink-faint); font-weight: 400; }
+  .navlinks { display: flex; gap: 22px; font-size: 14px; flex-wrap: wrap; align-items: center; }
+  .navlinks a { color: var(--ink-dim); text-decoration: none; padding-block: 2px; border-bottom: 1px solid transparent; transition: color .2s var(--ease), border-color .2s var(--ease); }
+  .navlinks a:hover { color: var(--ink); border-bottom-color: var(--signal); }
+  .tgl { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 12px; font-family: var(--mono); background: transparent;
+    border: 1px solid var(--line); color: var(--ink-dim); padding: 6px 11px; cursor: pointer; transition: border-color .2s var(--ease), color .2s var(--ease); }
+  .tgl:hover { border-color: var(--signal); color: var(--ink); }
+  .tgl svg { width: 13px; height: 13px; }
+  .tgl .sun { display: none; }
+  :root[data-theme="dark"] .tgl .sun { display: block; }
+  :root[data-theme="dark"] .tgl .moon { display: none; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tgl .sun { display: block; } :root:not([data-theme="light"]) .tgl .moon { display: none; } }
+
+  /* hero: the app's name, what it does, and the download for this computer */
+  .hero { padding-block: clamp(40px, 7vw, 84px) clamp(32px, 5vw, 56px); display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(28px, 4vw, 56px); align-items: center; }
+  .kicker { font-family: var(--mono); font-size: 13px; color: var(--signal); margin: 0 0 10px; }
+  h1 { font-size: clamp(2.4rem, 5.4vw, 3.6rem); line-height: 1.04; letter-spacing: -0.035em; margin: 0 0 16px; font-weight: 700; }
+  .lede { font-size: clamp(1.05rem, 1.6vw, 1.2rem); color: var(--ink-dim); margin: 0 0 26px; max-width: 46ch; }
+  .get { display: grid; gap: 12px; justify-items: start; }
+  .dl { display: inline-flex; align-items: center; gap: 10px; padding: 13px 20px; background: var(--lock); color: var(--on-accent); font-weight: 600; text-decoration: none;
+    border: 1px solid var(--lock); transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .dl:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .dl svg { width: 18px; height: 18px; }
+  .dl small { font-family: var(--mono); font-weight: 400; opacity: .85; }
+  .others { font-size: 14px; color: var(--ink-faint); margin: 0; }
+  .others a { color: var(--ink-dim); }
+  .ver { font-family: var(--mono); font-size: 12.5px; color: var(--ink-faint); margin: 0; }
+  .shot { border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
+  .hero .shot { transform: perspective(1400px) rotateY(-6deg) rotateX(2deg); transition: transform .6s var(--ease); }
+  .hero .shot:hover { transform: none; }
+  @media (prefers-reduced-motion: reduce) { .hero .shot { transform: none; } }
+
+  section { padding-block: clamp(44px, 6vw, 72px); border-top: 1px solid var(--line-soft); scroll-margin-top: 70px; }
+  h2 { font-size: clamp(1.35rem, 2.6vw, 1.6rem); letter-spacing: -0.02em; font-weight: 600; margin: 0 0 8px; }
+  h3 { font-size: 1.05rem; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sec-note { color: var(--ink-faint); font-size: 14.5px; margin: 0 0 30px; max-width: 62ch; }
+
+  /* features: screenshot beside its explanation */
+  .feature { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(22px, 4vw, 48px); align-items: center; }
+  .feature + .feature { margin-top: clamp(36px, 5vw, 60px); }
+  .feature.flip > .shot { order: 2; }
+  .feature p { margin: 0; color: var(--ink-dim); max-width: 52ch; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--line-soft); border: 1px solid var(--line-soft); margin-top: clamp(36px, 5vw, 60px); }
+  .facts div { background: var(--panel); padding: 18px 20px; }
+  .facts p { margin: 0; color: var(--ink-dim); font-size: 14.5px; }
+
+  /* install: one card per platform */
+  .platforms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .platform { background: var(--panel); border: 1px solid var(--line); padding: 20px 22px; display: grid; gap: 10px; align-content: start; }
+  .platform h3 { display: flex; align-items: center; gap: 10px; }
+  .tag { font-family: var(--mono); font-size: 11.5px; font-weight: 400; padding: 1px 7px; border: 1px solid var(--signal); color: var(--signal); }
+  .platform ol { margin: 0; padding-left: 20px; color: var(--ink-dim); font-size: 14.5px; display: grid; gap: 6px; }
+  .platform .dl { padding: 10px 14px; font-size: 14.5px; justify-self: start; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--panel-2); padding: 1px 5px; }
+  kbd { font-family: var(--mono); font-size: .85em; border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; background: var(--panel); }
+
+  .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
+  .cols ul { margin: 0; padding-left: 20px; color: var(--ink-dim); display: grid; gap: 8px; }
+  .note { margin: 26px 0 0; padding: 14px 18px; border: 1px solid var(--line); border-left: 3px solid var(--signal); background: var(--panel); color: var(--ink-dim); font-size: 14.5px; max-width: 80ch; }
+  .maker { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: baseline; }
+  .maker p { margin: 0; }
+  .maker .who { font-size: 1.1rem; font-weight: 600; }
+
+  footer { border-top: 1px solid var(--line); padding-block: 40px 52px; color: var(--ink-faint); font-size: 14px; }
+  .foot-grid { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
+  footer a { color: var(--ink-dim); }
+  footer .lines { display: grid; gap: 5px; }
+
+  @media (max-width: 900px) {
+    .hero, .feature, .cols { grid-template-columns: 1fr; }
+    .feature.flip > .shot { order: 0; }
+    .platforms { grid-template-columns: 1fr; }
+    .hero .shot { transform: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+  <div class="wrap masthead-in">
+    <a class="mark" href="../">Azharul Islam<span>, PhD</span></a>
+    <nav class="navlinks" aria-label="Sections">
+      <a href="#features">What it does</a>
+      <a href="#install">Install</a>
+      <a href="#updates">Updates</a>
+      <a href="#privacy">Privacy</a>
+      <a href="../">Home</a>
+      <button class="tgl" type="button" id="themeBtn" aria-label="Switch colour theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+        <span id="themeLbl">Dark</span>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap hero">
+    <div>
+      <p class="kicker">Free desktop app</p>
+      <h1>Aynaz</h1>
+      <p class="lede">Select any words in a paper or document and Aynaz explains them the way that document uses them, with an example and a diagram. The AI runs on your own computer, so your documents never leave it.</p>
+      <div class="get">
+        <a class="dl" id="primary" href="#install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
+          <span id="primary-label">Download Aynaz</span> <small id="primary-size"></small>
+        </a>
+        <p class="others" id="others">Windows, macOS (Apple Silicon) and Linux. <a href="#install">All downloads and how to install</a></p>
+        <p class="ver">Version <span class="v">0.5.3</span>, built by Dr. Azharul Islam</p>
+      </div>
+    </div>
+    <img class="shot" src="img/intro.jpg" width="1264" height="835" alt="The Aynaz intro: a 3D reader beside a page where the word kernel is highlighted and its explanation has popped out">
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What it does</h2>
+      <p class="sec-note">A reader for PDF, Word, PowerPoint, Excel, EPUB, ODT, RTF, text and Markdown files, with an explainer built in.</p>
+
+      <div class="feature">
+        <img class="shot" src="img/explain.jpg" width="1264" height="835" loading="lazy" alt="An explanation popup pointing at the selected word in a PDF">
+        <div>
+          <h3>Explains words the way this document means them</h3>
+          <p>The same word means different things in different fields. Aynaz reads the sentences around your selection and related passages from the same document, so <em>kernel</em> in a machine-learning paper is explained as a similarity function, not as the core of an operating system. Each answer has the meaning, a real-world example and a small diagram. <strong>Deeper</strong> asks the model to reason before it answers.</p>
+        </div>
+      </div>
+
+      <div class="feature flip">
+        <img class="shot" src="img/figure.jpg" width="1264" height="835" loading="lazy" alt="Aynaz explaining a ROC curve figure that the reader boxed on a PDF page">
+        <div>
+          <h3>Explains figures, charts and tables</h3>
+          <p>Press <strong>Figure</strong> and drag a box around a chart, diagram or table. Aynaz says what it shows, how to read it and the takeaway, using the figure's caption and the sentences that mention it. It also works on scanned pages that have no selectable text.</p>
+        </div>
+      </div>
+
+      <div class="feature">
+        <img class="shot" src="img/history.jpg" width="1264" height="835" loading="lazy" alt="The history panel listing past explanations beside an open document">
+        <div>
+          <h3>Keeps a history, and works in other apps</h3>
+          <p>Every explanation is kept in a searchable history that you can export as notes. Select text in your browser or any other app and press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>E</kbd> to have it explained there too.</p>
+        </div>
+      </div>
+
+      <div class="facts">
+        <div><h3>Private</h3><p>Documents are read and explained on your computer. No account, no upload.</p></div>
+        <div><h3>Offline</h3><p>After a one-time model download, Aynaz works without internet.</p></div>
+        <div><h3>Fast on a graphics card</h3><p>About a second per explanation with a graphics card, about nine seconds on the processor alone.</p></div>
+        <div><h3>Free</h3><p>Released under the Apache 2.0 licence, built on open models and tools.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Download and install</h2>
+      <p class="sec-note">The installers are not code-signed yet, so your computer asks you to confirm the first time. The steps below show how.</p>
+      <div class="platforms">
+        <div class="platform" id="p-win">
+          <h3>Windows 10 and 11</h3>
+          <a class="dl" data-file="win" href="#">Download for Windows <small>about 180 MB</small></a>
+          <ol>
+            <li>Run <code>Aynaz-Setup-0.5.3.exe</code>.</li>
+            <li>If Windows says <em>Windows protected your PC</em>, choose <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+            <li>Follow the installer, then open Aynaz from the Start menu.</li>
+          </ol>
+        </div>
+        <div class="platform" id="p-mac">
+          <h3>macOS <span class="tag">Beta</span></h3>
+          <a class="dl" data-file="mac" href="#">Download for Mac <small>about 200 MB</small></a>
+          <ol>
+            <li>For Apple Silicon Macs (M1 and later).</li>
+            <li>Open the <code>.dmg</code> and drag Aynaz into Applications.</li>
+            <li>The first time, right-click Aynaz and choose <strong>Open</strong>, then <strong>Open</strong> again.</li>
+            <li>To explain text in other apps, allow Aynaz under <strong>System Settings → Privacy &amp; Security → Accessibility</strong>.</li>
+          </ol>
+        </div>
+        <div class="platform" id="p-linux">
+          <h3>Linux <span class="tag">Beta</span></h3>
+          <a class="dl" data-file="linux" href="#">Download for Linux <small>about 225 MB</small></a>
+          <ol>
+            <li>For 64-bit Intel and AMD computers.</li>
+            <li>Make the file runnable: <code>chmod +x Aynaz-0.5.3-linux-x86_64.AppImage</code></li>
+            <li>Run it by double-clicking or from a terminal.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="cols" style="margin-top: 36px">
+        <div>
+          <h3>On first start</h3>
+          <ul>
+            <li>A short intro shows how Aynaz works. Click or press <kbd>Esc</kbd> to skip it.</li>
+            <li>Aynaz offers to download its AI model (2.5 GB) once. It takes a few minutes, resumes if interrupted, and is checked before use.</li>
+            <li>The first time you explain a figure, it offers the figure model (about 3 GB) the same way.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What you need</h3>
+          <ul>
+            <li>8 GB of memory (RAM).</li>
+            <li>About 3 GB of disk space, plus 3 GB for figures.</li>
+            <li>A graphics card is optional: NVIDIA, AMD and Intel are used when present.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">Mac and Linux versions are marked beta because they have not yet been tested on many machines. If something does not work, please write to the email below.</p>
+    </div>
+  </section>
+
+  <section id="updates">
+    <div class="wrap cols">
+      <div>
+        <h2>Updates</h2>
+        <p class="sec-note" style="margin-bottom: 0">When a new version is out, Aynaz shows a bar with a <strong>Download</strong> button. Install the new version over the old one: your history, settings and downloaded models are kept. <strong>Help → Check for Updates Now</strong> checks at any time.</p>
+      </div>
+      <div id="privacy">
+        <h2>Privacy</h2>
+        <p class="sec-note" style="margin-bottom: 0">Your documents and selections stay on your computer. Aynaz uses the internet only to download its models once, and to check this website once a day for a newer version. That check reads one small file and sends nothing about you; turn it off under <strong>Help → Check for Updates Automatically</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="maker">
+    <div class="wrap">
+      <h2>Developer</h2>
+      <div class="maker">
+        <p class="who">Built by Dr. Azharul Islam</p>
+        <p><a href="mailto:azharul.dream007@gmail.com">azharul.dream007@gmail.com</a></p>
+      </div>
+      <p class="note">Explanations are generated by an AI model and can be wrong. Check anything important against the document itself. Aynaz uses the Qwen3 models (Apache 2.0) and llama.cpp (MIT); their licences are included with the app.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div class="lines">
+      <span>Azharul Islam, PhD</span>
+      <span>Beyond-G Global Innovation Center, Hanyang University</span>
+      <span>Seoul, South Korea</span>
+    </div>
+    <div class="lines">
+      <a href="mailto:azharul.dream007@gmail.com">azharul.dream007@gmail.com</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Downloads: one release on this site's GitHub repository per version.
+  var VERSION = '0.5.3';
+  var BASE = 'https://github.com/azharul-islam007/azharul-islam007.github.io/releases/download/aynaz-v' + VERSION + '/';
+  var FILES = {
+    win: { file: 'Aynaz-Setup-' + VERSION + '.exe', label: 'Download for Windows', size: 'about 180 MB' },
+    mac: { file: 'Aynaz-' + VERSION + '-mac-arm64.dmg', label: 'Download for Mac', size: 'about 200 MB' },
+    linux: { file: 'Aynaz-' + VERSION + '-linux-x86_64.AppImage', label: 'Download for Linux', size: 'about 225 MB' },
+  };
+  document.querySelectorAll('[data-file]').forEach(function (a) { a.href = BASE + FILES[a.dataset.file].file; });
+  var ua = navigator.userAgent;
+  var os = /Windows/.test(ua) ? 'win' : /Macintosh|Mac OS X/.test(ua) ? 'mac' : /Linux/.test(ua) && !/Android/.test(ua) ? 'linux' : null;
+  if (os) {
+    var p = document.getElementById('primary');
+    p.href = BASE + FILES[os].file;
+    document.getElementById('primary-label').textContent = FILES[os].label;
+    document.getElementById('primary-size').textContent = FILES[os].size;
+  }
+
+  // theme toggle, shared with the home page
+  var root = document.documentElement, themeBtn = document.getElementById('themeBtn'), themeLbl = document.getElementById('themeLbl');
+  function isDark() {
+    var t = root.getAttribute('data-theme');
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function paint() { themeLbl.textContent = isDark() ? 'Light' : 'Dark'; }
+  paint();
+  themeBtn.addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    paint();
+  });
+})();
+</script>
+</body>
+</html>
