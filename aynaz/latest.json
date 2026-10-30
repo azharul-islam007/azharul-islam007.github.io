@@ -1,5 +1,5 @@
 {
-  "version": "0.5.3",
+  "version": "0.5.4",
   "page": "https://azharul-islam007.github.io/aynaz/",
-  "notes": ""
+  "notes": "Clearer install steps, a fix for opening Aynaz on macOS, and a longer intro whose reader stays on the welcome screen."
 }
