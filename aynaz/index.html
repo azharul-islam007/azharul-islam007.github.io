@@ -110,6 +110,28 @@ try {
   code { font-family: var(--mono); font-size: .9em; background: var(--panel-2); padding: 1px 5px; }
   kbd { font-family: var(--mono); font-size: .85em; border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; background: var(--panel); }
 
+  .steps { display: grid; gap: 10px; }
+  .steps details { font-size: 14px; color: var(--ink-dim); }
+  .steps details p { margin: 6px 0; }
+  .steps summary { cursor: pointer; }
+  /* small drawings of the system's own warnings; fixed colours because they show the OS, not this page */
+  .ui { font: 12.5px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; padding: 12px 14px; box-shadow: var(--shadow); }
+  .ui b { display: block; font-size: 15px; }
+  .ui p { margin: 6px 0 0; }
+  .ui .btn { display: inline-block; padding: 3px 12px; border: 1px solid; margin-right: 8px; }
+  .ui .hit { outline: 3px solid var(--signal); outline-offset: 2px; border-radius: 3px; }
+  .ui-win { background: #0b5cad; color: #fff; }
+  .ui-win .row { text-align: right; margin-top: 10px; }
+  .ui-mac { background: #ececec; color: #1d1d1f; text-align: center; border-radius: 12px; }
+  .ui-mac .btn { display: block; margin: 8px 0 0; background: #fff; border-color: #d0d0d0; border-radius: 6px; }
+  .ui-set { background: #f5f5f7; color: #1d1d1f; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .ui-set .btn { background: #fff; border-color: #d0d0d0; border-radius: 6px; margin: 0; white-space: nowrap; }
+  .ui-lin { background: #fafafa; color: #222; border-radius: 8px; }
+  .ui-lin .box { display: inline-block; width: 14px; height: 14px; line-height: 14px; text-align: center; background: #3584e4; color: #fff; border-radius: 3px; margin-right: 6px; }
+  .next { border: 1px solid var(--line); border-left: 3px solid var(--lock); background: var(--panel); padding: 14px 18px; max-width: 46ch; }
+  .next h3 { margin-bottom: 8px; }
+  .next ol { margin: 0; padding-left: 20px; color: var(--ink-dim); font-size: 14.5px; display: grid; gap: 6px; }
+
   .cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
   .cols ul { margin: 0; padding-left: 20px; color: var(--ink-dim); display: grid; gap: 8px; }
   .note { margin: 26px 0 0; padding: 14px 18px; border: 1px solid var(--line); border-left: 3px solid var(--signal); background: var(--panel); color: var(--ink-dim); font-size: 14.5px; max-width: 80ch; }
@@ -163,6 +185,7 @@ try {
         </a>
         <p class="others" id="others">Windows, macOS (Apple Silicon) and Linux. <a href="#install">All downloads and how to install</a></p>
         <p class="ver">Version <span class="v">0.5.3</span>, built by Dr. Azharul Islam</p>
+        <div class="next" id="next" hidden aria-live="polite"></div>
       </div>
     </div>
     <img class="shot" src="img/intro.jpg" width="1264" height="835" alt="The Aynaz intro: a 3D reader beside a page where the word kernel is highlighted and its explanation has popped out">
@@ -209,42 +232,72 @@ try {
   <section id="install">
     <div class="wrap">
       <h2>Download and install</h2>
-      <p class="sec-note">The installers are not code-signed yet, so your computer asks you to confirm the first time. The steps below show how.</p>
+      <p class="sec-note"><strong>Why does my computer warn me?</strong> Aynaz is free and made by one developer, so its installers are not signed with a paid certificate. The warning is about the unknown publisher, not about anything in the app. You confirm once; after that Aynaz opens normally.</p>
       <div class="platforms">
         <div class="platform" id="p-win">
           <h3>Windows 10 and 11</h3>
           <a class="dl" data-file="win" href="#">Download for Windows <small>about 180 MB</small></a>
-          <ol>
-            <li>Run <code>Aynaz-Setup-0.5.3.exe</code>.</li>
-            <li>If Windows says <em>Windows protected your PC</em>, choose <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
-            <li>Follow the installer, then open Aynaz from the Start menu.</li>
-          </ol>
+          <div class="steps">
+            <ol>
+              <li>Run the <code>Aynaz-Setup</code> file you downloaded.</li>
+              <li>Windows shows a blue <em>Windows protected your PC</em> screen. Click <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
+              <li>Follow the installer, then open Aynaz from the Start menu.</li>
+            </ol>
+            <div class="ui ui-win" role="img" aria-label="The Windows protected your PC screen, with More info and then Run anyway marked">
+              <b>Windows protected your PC</b>
+              <p>Microsoft Defender SmartScreen prevented an unrecognized app from starting.</p>
+              <p><u class="hit">More info</u></p>
+              <p class="row"><span class="btn hit">Run anyway</span><span class="btn">Don't run</span></p>
+            </div>
+          </div>
         </div>
         <div class="platform" id="p-mac">
           <h3>macOS <span class="tag">Beta</span></h3>
           <a class="dl" data-file="mac" href="#">Download for Mac <small>about 200 MB</small></a>
-          <ol>
-            <li>For Apple Silicon Macs (M1 and later).</li>
-            <li>Open the <code>.dmg</code> and drag Aynaz into Applications.</li>
-            <li>The first time, right-click Aynaz and choose <strong>Open</strong>, then <strong>Open</strong> again.</li>
-            <li>To explain text in other apps, allow Aynaz under <strong>System Settings → Privacy &amp; Security → Accessibility</strong>.</li>
-          </ol>
+          <div class="steps">
+            <ol>
+              <li>For Apple Silicon Macs (M1 and later).</li>
+              <li>Open the <code>.dmg</code> and drag Aynaz into Applications. The window shows the steps below too.</li>
+              <li>Open Aynaz. macOS says it could not verify Aynaz: click <strong>Done</strong>.</li>
+              <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll down and click <strong>Open Anyway</strong>, then <strong>Open Anyway</strong> again and enter your Mac password. You do this only once.</li>
+              <li>To explain text in other apps, allow Aynaz under <strong>System Settings → Privacy &amp; Security → Accessibility</strong>.</li>
+            </ol>
+            <div class="ui ui-mac" role="img" aria-label="The macOS message Aynaz Not Opened, with the Done button marked">
+              <b>“Aynaz” Not Opened</b>
+              <p>Apple could not verify “Aynaz” is free of malware that may harm your Mac or compromise your privacy.</p>
+              <span class="btn hit">Done</span><span class="btn">Move to Trash</span>
+            </div>
+            <div class="ui ui-set" role="img" aria-label="System Settings, Privacy and Security: Aynaz was blocked, with the Open Anyway button marked">
+              <span>“Aynaz” was blocked to protect your Mac.</span><span class="btn hit">Open Anyway</span>
+            </div>
+            <details>
+              <summary>Prefer the Terminal?</summary>
+              <p>After dragging Aynaz into Applications, this one line does the same as the steps above:</p>
+              <code>xattr -dr com.apple.quarantine /Applications/Aynaz.app</code>
+            </details>
+          </div>
         </div>
         <div class="platform" id="p-linux">
           <h3>Linux <span class="tag">Beta</span></h3>
           <a class="dl" data-file="linux" href="#">Download for Linux <small>about 225 MB</small></a>
-          <ol>
-            <li>For 64-bit Intel and AMD computers.</li>
-            <li>Make the file runnable: <code>chmod +x Aynaz-0.5.3-linux-x86_64.AppImage</code></li>
-            <li>Run it by double-clicking or from a terminal.</li>
-          </ol>
+          <div class="steps">
+            <ol>
+              <li>For 64-bit Intel and AMD computers.</li>
+              <li>On Ubuntu 22.04 and later, install FUSE once: <code>sudo apt install libfuse2</code> (on Ubuntu 24.04: <code>libfuse2t64</code>).</li>
+              <li>Make the file runnable: right-click it, choose <strong>Properties</strong> and turn on <strong>Allow executing file as program</strong>. Or run <code>chmod +x Aynaz-*.AppImage</code></li>
+              <li>Double-click it to start Aynaz.</li>
+            </ol>
+            <div class="ui ui-lin" role="img" aria-label="The file's Properties, with Allow executing file as program turned on and marked">
+              <span class="hit"><span class="box">✓</span> Allow executing file as program</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="cols" style="margin-top: 36px">
         <div>
           <h3>On first start</h3>
           <ul>
-            <li>A short intro shows how Aynaz works. Click or press <kbd>Esc</kbd> to skip it.</li>
+            <li>A short intro shows how Aynaz works each time it starts. Click or press <kbd>Esc</kbd> to skip it.</li>
             <li>Aynaz offers to download its AI model (2.5 GB) once. It takes a few minutes, resumes if interrupted, and is checked before use.</li>
             <li>The first time you explain a figure, it offers the figure model (about 3 GB) the same way.</li>
           </ul>
@@ -318,6 +371,13 @@ try {
     p.href = BASE + FILES[os].file;
     document.getElementById('primary-label').textContent = FILES[os].label;
     document.getElementById('primary-size').textContent = FILES[os].size;
+    // after the download starts, show this computer's install steps right under the button
+    p.addEventListener('click', function () {
+      var next = document.getElementById('next');
+      next.innerHTML = '<h3>Your download has started. Next:</h3>';
+      next.appendChild(document.querySelector('#p-' + os + ' .steps').cloneNode(true));
+      next.hidden = false;
+    });
   }
 
   // theme toggle, shared with the home page
