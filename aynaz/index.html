@@ -387,7 +387,7 @@ try {
       </div>
       <div id="privacy">
         <h2>Privacy</h2>
-        <p class="sec-note" style="margin-bottom: 0">Your documents and selections stay on your computer. Aynaz uses the internet only to download its models once, and to check this website once a day for a newer version. That check reads one small file and sends nothing about you; turn it off under <strong>Help → Check for Updates Automatically</strong>.</p>
+        <p class="sec-note" style="margin-bottom: 0">Your documents and selections stay on your computer. Aynaz uses the internet only to download its models once, and to check this website once a day for a newer version. That check reads one small file and sends nothing about you; turn it off under <strong>Help → Check for Updates Automatically</strong>. This web page counts visits with GoatCounter, which sets no cookies and keeps no personal data.</p>
       </div>
     </div>
   </section>
@@ -466,7 +466,7 @@ try {
 /* Public counts. Downloads: GitHub release download counts for every Aynaz installer (not the checksum file).
    Visits: GoatCounter (no cookies); set GC to the account code to turn it on. Each part hides itself on failure. */
 (function () {
-  var GC = '';
+  var GC = 'aynaz';
   var fmt = function (n) { return Number(n).toLocaleString('en-US'); };
   var show = function (id, html) { var el = document.getElementById(id); el.innerHTML = html; el.hidden = false; document.getElementById('stats').hidden = false; };
   fetch('https://api.github.com/repos/azharul-islam007/azharul-islam007.github.io/releases?per_page=100')
