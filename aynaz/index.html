@@ -141,6 +141,9 @@ try {
   .others { font-size: 14px; color: var(--ink-faint); margin: 0; }
   .others a { color: var(--ink-dim); }
   .ver { font-family: var(--mono); font-size: 12.5px; color: var(--ink-faint); margin: 0; }
+  .stats { margin-top: 4px; }
+  .stats span:not([hidden]) + span:not([hidden])::before { content: " · "; }
+  .stats b { color: var(--ink); font-weight: 500; }
   .shot { border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
   .hero .shot { transform: perspective(1400px) rotateY(-6deg) rotateX(2deg); transition: transform .6s var(--ease); }
   .hero .shot:hover { transform: none; }
@@ -245,6 +248,7 @@ try {
         </a>
         <p class="others" id="others">Windows, macOS (Apple Silicon) and Linux. <a href="#install">All downloads and how to install</a></p>
         <p class="ver">Version <span class="v">0.5.4</span>, built by Dr. Azharul Islam</p>
+        <p class="ver stats" id="stats" hidden><span id="st-visits" hidden></span><span id="st-dl" hidden></span></p>
         <div class="next" id="next" hidden aria-live="polite"></div>
       </div>
     </div>
@@ -456,6 +460,32 @@ try {
     try { localStorage.setItem('theme', next); } catch (e) {}
     paint();
   });
+})();
+</script>
+<script>
+/* Public counts. Downloads: GitHub release download counts for every Aynaz installer (not the checksum file).
+   Visits: GoatCounter (no cookies); set GC to the account code to turn it on. Each part hides itself on failure. */
+(function () {
+  var GC = '';
+  var fmt = function (n) { return Number(n).toLocaleString('en-US'); };
+  var show = function (id, html) { var el = document.getElementById(id); el.innerHTML = html; el.hidden = false; document.getElementById('stats').hidden = false; };
+  fetch('https://api.github.com/repos/azharul-islam007/azharul-islam007.github.io/releases?per_page=100')
+    .then(function (r) { if (!r.ok) throw r.status; return r.json(); })
+    .then(function (rels) {
+      var n = 0;
+      rels.forEach(function (rel) {
+        if (rel.tag_name.indexOf('aynaz-v') !== 0) return;
+        rel.assets.forEach(function (a) { if (/\.(exe|dmg|AppImage)$/.test(a.name)) n += a.download_count; });
+      });
+      if (n > 0) show('st-dl', '<b>' + fmt(n) + '</b> downloads');
+    }).catch(function () {});
+  if (!GC) return;
+  var s = document.createElement('script');
+  s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.setAttribute('data-goatcounter', 'https://' + GC + '.goatcounter.com/count');
+  document.body.appendChild(s);
+  fetch('https://' + GC + '.goatcounter.com/counter/' + encodeURIComponent(location.pathname) + '.json')
+    .then(function (r) { if (!r.ok) throw r.status; return r.json(); })
+    .then(function (d) { if (d.count) show('st-visits', '<b>' + d.count + '</b> visits'); }).catch(function () {});
 })();
 </script>
 </body>
